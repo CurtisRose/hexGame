@@ -9,6 +9,8 @@ public class HexGameUI : MonoBehaviour {
 
 	HexUnit selectedUnit;
 
+	bool endTurn = false;
+
 	public void SetEditMode (bool toggle) {
 		enabled = !toggle;
 		grid.ShowUI(!toggle);
@@ -28,12 +30,21 @@ public class HexGameUI : MonoBehaviour {
 			}
 			else if (selectedUnit) {
 				if (Input.GetMouseButtonDown(1)) {
-					DoMove();
+					SetPath();
 				}
 				else {
 					DoPathfinding();
 				}
 			}
+		}
+		if (Input.GetAxis("End Turn") > 0 && endTurn == false) {
+			Debug.Log("NumUnits = " + grid.GetUnits().Count);
+			endTurn = true;
+			foreach(HexUnit hexUnit in grid.GetUnits()) {
+				hexUnit.FollowPath();
+			}
+		} else if (Input.GetAxis("End Turn") == 0) {
+			endTurn = false;
 		}
 	}
 
@@ -56,10 +67,10 @@ public class HexGameUI : MonoBehaviour {
 		}
 	}
 
-	void DoMove () {
+	void SetPath() {
 		if (grid.HasPath) {
-			selectedUnit.Travel(grid.GetPath());
-			grid.ClearPath();
+			selectedUnit.SetPath(grid.GetPath());
+			//grid.ClearPath();
 		}
 	}
 

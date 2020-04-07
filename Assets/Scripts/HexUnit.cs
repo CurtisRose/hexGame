@@ -55,7 +55,13 @@ public class HexUnit : MonoBehaviour {
 
 	float orientation;
 
-	List<HexCell> pathToTravel;
+	List<HexCell> fullPathToTravel;
+	List<HexCell> immediatePathToTravel;
+
+	private void Awake() {
+		fullPathToTravel = new List<HexCell>();
+		immediatePathToTravel = new List<HexCell>();
+	}
 
 	public void ValidateLocation () {
 		transform.localPosition = location.Position;
@@ -65,30 +71,65 @@ public class HexUnit : MonoBehaviour {
 		return cell.IsExplored && !cell.IsUnderwater && !cell.Unit;
 	}
 
-	public void Travel (List<HexCell> path) {
-		location.Unit = null;
-		location = path[path.Count - 1];
-		location.Unit = this;
-		pathToTravel = path;
-		StopAllCoroutines();
-		StartCoroutine(TravelPath());
+	public void SetPath(List<HexCell> path) {
+		fullPathToTravel = path;
+		//FollowPath();
+	}
+
+	public void FollowPath() {
+		PartitionPath();
+		if (immediatePathToTravel.Count > 0) {
+			location.Unit = null;
+			location = immediatePathToTravel[immediatePathToTravel.Count - 1];
+			location.Unit = this;
+			StopAllCoroutines();
+			StartCoroutine(TravelPath());
+		}
+	}
+
+	public void PartitionPath() {
+		// If the path to follow only includes the current location, path is invalid, do not follow
+		if (fullPathToTravel.Count <= 1) {
+			immediatePathToTravel = new List<HexCell>();
+			return;
+		}
+
+		if (immediatePathToTravel != null) {
+			immediatePathToTravel.Clear();
+		} else {
+			immediatePathToTravel = new List<HexCell>();
+		}
+
+		immediatePathToTravel.Add(Location);
+
+		foreach (HexCell hexCell in fullPathToTravel) {
+			if (hexCell.Distance < Speed) {
+				// If the cell isn't the current location add it, we've already added the current location above
+				if (Location != hexCell) {
+					immediatePathToTravel.Add(hexCell);
+				}
+			}
+		}
+		foreach (HexCell hexCell in immediatePathToTravel) {
+			fullPathToTravel.Remove(hexCell);
+		}
 	}
 
 	IEnumerator TravelPath () {
-		Vector3 a, b, c = pathToTravel[0].Position;
-		yield return LookAt(pathToTravel[1].Position);
+		Vector3 a, b, c = immediatePathToTravel[0].Position;
+		yield return LookAt(immediatePathToTravel[1].Position);
 
 		if (!currentTravelLocation) {
-			currentTravelLocation = pathToTravel[0];
+			currentTravelLocation = immediatePathToTravel[0];
 		}
 		Grid.DecreaseVisibility(currentTravelLocation, VisionRange);
 		int currentColumn = currentTravelLocation.ColumnIndex;
 
 		float t = Time.deltaTime * travelSpeed;
-		for (int i = 1; i < pathToTravel.Count; i++) {
-			currentTravelLocation = pathToTravel[i];
+		for (int i = 1; i < immediatePathToTravel.Count; i++) {
+			currentTravelLocation = immediatePathToTravel[i];
 			a = c;
-			b = pathToTravel[i - 1].Position;
+			b = immediatePathToTravel[i - 1].Position;
 
 			int nextColumn = currentTravelLocation.ColumnIndex;
 			if (currentColumn != nextColumn) {
@@ -105,7 +146,7 @@ public class HexUnit : MonoBehaviour {
 			}
 
 			c = (b + currentTravelLocation.Position) * 0.5f;
-			Grid.IncreaseVisibility(pathToTravel[i], VisionRange);
+			Grid.IncreaseVisibility(immediatePathToTravel[i], VisionRange);
 
 			for (; t < 1f; t += Time.deltaTime * travelSpeed) {
 				transform.localPosition = Bezier.GetPoint(a, b, c, t);
@@ -114,7 +155,7 @@ public class HexUnit : MonoBehaviour {
 				transform.localRotation = Quaternion.LookRotation(d);
 				yield return null;
 			}
-			Grid.DecreaseVisibility(pathToTravel[i], VisionRange);
+			Grid.DecreaseVisibility(immediatePathToTravel[i], VisionRange);
 			t -= 1f;
 		}
 		currentTravelLocation = null;
@@ -133,8 +174,8 @@ public class HexUnit : MonoBehaviour {
 
 		transform.localPosition = location.Position;
 		orientation = transform.localRotation.eulerAngles.y;
-		ListPool<HexCell>.Add(pathToTravel);
-		pathToTravel = null;
+		ListPool<HexCell>.Add(immediatePathToTravel);
+		immediatePathToTravel = null;
 	}
 
 	IEnumerator LookAt (Vector3 point) {
@@ -185,13 +226,8 @@ public class HexUnit : MonoBehaviour {
 		if (fromCell.HasRoadThroughEdge(direction)) {
 			moveCost = 1;
 		}
-		else if (fromCell.Walled != toCell.Walled) {
-			return -1;
-		}
 		else {
 			moveCost = edgeType == HexEdgeType.Flat ? 5 : 10;
-			moveCost +=
-				toCell.UrbanLevel + toCell.FarmLevel + toCell.PlantLevel;
 		}
 		return moveCost;
 	}
