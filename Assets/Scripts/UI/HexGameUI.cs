@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 using UnityEngine.EventSystems;
 
 public class HexGameUI : MonoBehaviour {
@@ -10,6 +11,8 @@ public class HexGameUI : MonoBehaviour {
 	HexUnit selectedUnit;
 
 	bool endTurn = false;
+
+	List<Command> commands = new List<Command>();
 
 	public void SetEditMode (bool toggle) {
 		enabled = !toggle;
@@ -38,11 +41,14 @@ public class HexGameUI : MonoBehaviour {
 			}
 		}
 		if (Input.GetAxis("End Turn") > 0 && endTurn == false) {
-			Debug.Log("NumUnits = " + grid.GetUnits().Count);
 			endTurn = true;
-			foreach(HexUnit hexUnit in grid.GetUnits()) {
-				hexUnit.FollowPath();
+			foreach(Command command in commands) {
+				command.Execute();
 			}
+			commands.Clear();
+			/*foreach(HexUnit hexUnit in grid.GetUnits()) {
+				hexUnit.FollowPath();
+			}*/
 		} else if (Input.GetAxis("End Turn") == 0) {
 			endTurn = false;
 		}
@@ -69,7 +75,8 @@ public class HexGameUI : MonoBehaviour {
 
 	void SetPath() {
 		if (grid.HasPath) {
-			selectedUnit.SetPath(grid.GetPath());
+			//selectedUnit.SetPath(grid.GetPath());
+			commands.Add(new MoveCommand(selectedUnit, grid.GetPath()));
 			//grid.ClearPath();
 		}
 	}
