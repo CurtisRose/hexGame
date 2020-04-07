@@ -5,8 +5,6 @@ public class HexGridChunk : MonoBehaviour {
 
 	public HexMesh terrain, rivers, roads, water, waterShore, estuaries;
 
-	public HexFeatureManager features;
-
 	HexCell[] cells;
 
 	Canvas gridCanvas;
@@ -48,7 +46,6 @@ public class HexGridChunk : MonoBehaviour {
 		water.Clear();
 		waterShore.Clear();
 		estuaries.Clear();
-		features.Clear();
 		for (int i = 0; i < cells.Length; i++) {
 			Triangulate(cells[i]);
 		}
@@ -58,20 +55,11 @@ public class HexGridChunk : MonoBehaviour {
 		water.Apply();
 		waterShore.Apply();
 		estuaries.Apply();
-		features.Apply();
 	}
 
 	void Triangulate (HexCell cell) {
 		for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++) {
 			Triangulate(d, cell);
-		}
-		if (!cell.IsUnderwater) {
-			if (!cell.HasRiver && !cell.HasRoads) {
-				features.AddFeature(cell, cell.Position);
-			}
-			if (cell.IsSpecial) {
-				features.AddSpecialFeature(cell, cell.Position);
-			}
 		}
 	}
 
@@ -98,10 +86,6 @@ public class HexGridChunk : MonoBehaviour {
 		}
 		else {
 			TriangulateWithoutRiver(direction, cell, center, e);
-
-			if (!cell.IsUnderwater && !cell.HasRoadThroughEdge(direction)) {
-				features.AddFeature(cell, (center + e.v1 + e.v5) * (1f / 3f));
-			}
 		}
 
 		if (direction <= HexDirection.SE) {
@@ -374,10 +358,6 @@ public class HexGridChunk : MonoBehaviour {
 			e, weights1, cell.Index
 		);
 		TriangulateEdgeFan(center, m, cell.Index);
-
-		if (!cell.IsUnderwater && !cell.HasRoadThroughEdge(direction)) {
-			features.AddFeature(cell, (center + e.v1 + e.v5) * (1f / 3f));
-		}
 	}
 
 	void TriangulateRoadAdjacentToRiver (
@@ -415,12 +395,6 @@ public class HexGridChunk : MonoBehaviour {
 				corner = HexMetrics.GetFirstSolidCorner(direction);
 			}
 			roadCenter += corner * 0.5f;
-			if (cell.IncomingRiver == direction.Next() && (
-				cell.HasRoadThroughEdge(direction.Next2()) ||
-				cell.HasRoadThroughEdge(direction.Opposite())
-			)) {
-				features.AddBridge(roadCenter, center - corner * 0.5f);
-			}
 			center += corner * 0.25f;
 		}
 		else if (cell.IncomingRiver == cell.OutgoingRiver.Previous()) {
@@ -458,15 +432,6 @@ public class HexGridChunk : MonoBehaviour {
 			}
 			Vector3 offset = HexMetrics.GetSolidEdgeMiddle(middle);
 			roadCenter += offset * 0.25f;
-			if (
-				direction == middle &&
-				cell.HasRoadThroughEdge(direction.Opposite())
-			) {
-				features.AddBridge(
-					roadCenter,
-					center - offset * (HexMetrics.innerToOuter * 0.7f)
-				);
-			}
 		}
 
 		Vector3 mL = Vector3.Lerp(roadCenter, e.v1, interpolators.x);
@@ -653,8 +618,6 @@ public class HexGridChunk : MonoBehaviour {
 			);
 		}
 
-		features.AddWall(e1, cell, e2, neighbor, hasRiver, hasRoad);
-
 		HexCell nextNeighbor = cell.GetNeighbor(direction.Next());
 		if (direction <= HexDirection.E && nextNeighbor != null) {
 			Vector3 v5 = e1.v5 + HexMetrics.GetBridge(direction.Next());
@@ -760,8 +723,6 @@ public class HexGridChunk : MonoBehaviour {
 			indices.z = rightCell.Index;
 			terrain.AddTriangleCellData(indices, weights1, weights2, weights3);
 		}
-
-		features.AddWall(bottom, bottomCell, left, leftCell, right, rightCell);
 	}
 
 	void TriangulateEdgeTerraces (
