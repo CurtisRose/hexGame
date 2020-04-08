@@ -20,7 +20,6 @@ public class MoveCommand : Command
     }
 
     public override void Execute() {
-        Debug.Log("Command Executed");
         hexUnit.SetPath(path);
         hexUnit.FollowPath();
     }

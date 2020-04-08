@@ -42,10 +42,8 @@ public class HexGameUI : MonoBehaviour {
 		}
 		if (Input.GetAxis("End Turn") > 0 && endTurn == false) {
 			endTurn = true;
-			Debug.Log("Executing Commands");
 			if (commandList != null && commandList.Count > 0) {
 				foreach (Command command in commandList[0]) {
-					Debug.Log("Executing Command");
 					command.Execute();
 				}
 				commandList.RemoveAt(0);
