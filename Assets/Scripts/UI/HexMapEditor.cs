@@ -13,12 +13,12 @@ public class HexMapEditor : MonoBehaviour {
 
 	int activeUrbanLevel, activeFarmLevel, activePlantLevel, activeSpecialIndex;
 
-	int activeTerrainTypeIndex;
+	int activeTerrainTypeIndex = -1;
 
 	int brushSize;
 
-	bool applyElevation = true;
-	bool applyWaterLevel = true;
+	bool applyElevation = false;
+	bool applyWaterLevel = false;
 
 	bool applyUrbanLevel, applyFarmLevel, applyPlantLevel, applySpecialIndex;
 
@@ -52,38 +52,6 @@ public class HexMapEditor : MonoBehaviour {
 		activeWaterLevel = (int)level;
 	}
 
-	public void SetApplyUrbanLevel (bool toggle) {
-		applyUrbanLevel = toggle;
-	}
-
-	public void SetUrbanLevel (float level) {
-		activeUrbanLevel = (int)level;
-	}
-
-	public void SetApplyFarmLevel (bool toggle) {
-		applyFarmLevel = toggle;
-	}
-
-	public void SetFarmLevel (float level) {
-		activeFarmLevel = (int)level;
-	}
-
-	public void SetApplyPlantLevel (bool toggle) {
-		applyPlantLevel = toggle;
-	}
-
-	public void SetPlantLevel (float level) {
-		activePlantLevel = (int)level;
-	}
-
-	public void SetApplySpecialIndex (bool toggle) {
-		applySpecialIndex = toggle;
-	}
-
-	public void SetSpecialIndex (float index) {
-		activeSpecialIndex = (int)index;
-	}
-
 	public void SetBrushSize (float size) {
 		brushSize = (int)size;
 	}
@@ -94,10 +62,6 @@ public class HexMapEditor : MonoBehaviour {
 
 	public void SetRoadMode (int mode) {
 		roadMode = (OptionalToggle)mode;
-	}
-
-	public void SetWalledMode (int mode) {
-		walledMode = (OptionalToggle)mode;
 	}
 
 	public void SetEditMode (bool toggle) {
@@ -209,6 +173,7 @@ public class HexMapEditor : MonoBehaviour {
 	void EditCell (HexCell cell) {
 		if (cell) {
 			if (activeTerrainTypeIndex >= 0) {
+				Debug.Log(activeTerrainTypeIndex);
 				cell.TerrainTypeIndex = activeTerrainTypeIndex;
 			}
 			if (applyElevation) {

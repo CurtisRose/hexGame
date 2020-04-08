@@ -12,7 +12,7 @@ public class HexGameUI : MonoBehaviour {
 
 	bool endTurn = false;
 
-	List<Command> commands = new List<Command>();
+	List<List<Command>> commandList = new List<List<Command>>();
 
 	public void SetEditMode (bool toggle) {
 		enabled = !toggle;
@@ -33,7 +33,7 @@ public class HexGameUI : MonoBehaviour {
 			}
 			else if (selectedUnit) {
 				if (Input.GetMouseButtonDown(1)) {
-					SetPath();
+					GiveCommand();
 				}
 				else {
 					DoPathfinding();
@@ -42,13 +42,14 @@ public class HexGameUI : MonoBehaviour {
 		}
 		if (Input.GetAxis("End Turn") > 0 && endTurn == false) {
 			endTurn = true;
-			foreach(Command command in commands) {
-				command.Execute();
+			Debug.Log("Executing Commands");
+			if (commandList != null && commandList.Count > 0) {
+				foreach (Command command in commandList[0]) {
+					Debug.Log("Executing Command");
+					command.Execute();
+				}
+				commandList.RemoveAt(0);
 			}
-			commands.Clear();
-			/*foreach(HexUnit hexUnit in grid.GetUnits()) {
-				hexUnit.FollowPath();
-			}*/
 		} else if (Input.GetAxis("End Turn") == 0) {
 			endTurn = false;
 		}
@@ -73,11 +74,31 @@ public class HexGameUI : MonoBehaviour {
 		}
 	}
 
-	void SetPath() {
+	void GiveCommand() {
 		if (grid.HasPath) {
 			//selectedUnit.SetPath(grid.GetPath());
-			commands.Add(new MoveCommand(selectedUnit, grid.GetPath()));
-			//grid.ClearPath();
+			List<HexCell> fullPath = grid.GetPath();
+			int turnNumber = 0;
+
+			while (fullPath.Count > 1) {
+				List<HexCell> partialPath = selectedUnit.PartitionPath(ref fullPath);
+				MoveCommand moveCommand = new MoveCommand(selectedUnit, partialPath);
+				List<Command> commands;
+				if (commandList != null && commandList.Count < (turnNumber+1)) {
+					commandList.Add(new List<Command>());
+					commands = new List<Command>();
+				} else {
+					commands = commandList[turnNumber];
+				}
+				bool goodCommand = moveCommand.ValidateAddCommand(ref commands);
+
+				if (goodCommand) {
+					commandList[turnNumber] = commands;
+				} else {
+					// What to do if invalid?
+				}
+				turnNumber++;
+			}
 		}
 	}
 

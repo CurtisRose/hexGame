@@ -55,12 +55,10 @@ public class HexUnit : MonoBehaviour {
 
 	float orientation;
 
-	List<HexCell> fullPathToTravel;
-	List<HexCell> immediatePathToTravel;
+	List<HexCell> pathToTravel;
 
 	private void Awake() {
-		fullPathToTravel = new List<HexCell>();
-		immediatePathToTravel = new List<HexCell>();
+		pathToTravel = new List<HexCell>();
 	}
 
 	public void ValidateLocation () {
@@ -72,64 +70,62 @@ public class HexUnit : MonoBehaviour {
 	}
 
 	public void SetPath(List<HexCell> path) {
-		fullPathToTravel = path;
-		//FollowPath();
+		pathToTravel = path;
 	}
 
 	public void FollowPath() {
-		PartitionPath();
-		if (immediatePathToTravel.Count > 0) {
+		if (pathToTravel.Count > 0) {
 			location.Unit = null;
-			location = immediatePathToTravel[immediatePathToTravel.Count - 1];
+			location = pathToTravel[pathToTravel.Count - 1];
 			location.Unit = this;
 			StopAllCoroutines();
 			StartCoroutine(TravelPath());
 		}
 	}
 
-	public void PartitionPath() {
+
+	// Returns the one turn path and alters the input path to be the remainder of the path
+	public List<HexCell> PartitionPath(ref List<HexCell> fullPathToTravel) {
 		// If the path to follow only includes the current location, path is invalid, do not follow
 		if (fullPathToTravel.Count <= 1) {
-			immediatePathToTravel = new List<HexCell>();
-			return;
+			return null;
 		}
 
-		if (immediatePathToTravel != null) {
-			immediatePathToTravel.Clear();
-		} else {
-			immediatePathToTravel = new List<HexCell>();
-		}
-
-		immediatePathToTravel.Add(Location);
+		List<HexCell> immediatePathToTravel = new List<HexCell>();
 
 		foreach (HexCell hexCell in fullPathToTravel) {
 			if (hexCell.Distance < Speed) {
-				// If the cell isn't the current location add it, we've already added the current location above
-				if (Location != hexCell) {
-					immediatePathToTravel.Add(hexCell);
-				}
+				immediatePathToTravel.Add(hexCell);
 			}
 		}
-		foreach (HexCell hexCell in immediatePathToTravel) {
-			fullPathToTravel.Remove(hexCell);
+
+		fullPathToTravel.RemoveRange(0, immediatePathToTravel.Count - 1);
+
+		// Seems super messy, but partitioning works by using the distances on each hex.
+		// After the first partition the remaining hexes have the old distances
+		// So, we have to shift the distances, acting as if it is a new turn
+		foreach (HexCell hexCell in fullPathToTravel) {
+			hexCell.Distance -= Speed;
 		}
+
+		return immediatePathToTravel;
 	}
 
 	IEnumerator TravelPath () {
-		Vector3 a, b, c = immediatePathToTravel[0].Position;
-		yield return LookAt(immediatePathToTravel[1].Position);
+		Vector3 a, b, c = pathToTravel[0].Position;
+		yield return LookAt(pathToTravel[1].Position);
 
 		if (!currentTravelLocation) {
-			currentTravelLocation = immediatePathToTravel[0];
+			currentTravelLocation = pathToTravel[0];
 		}
 		Grid.DecreaseVisibility(currentTravelLocation, VisionRange);
 		int currentColumn = currentTravelLocation.ColumnIndex;
 
 		float t = Time.deltaTime * travelSpeed;
-		for (int i = 1; i < immediatePathToTravel.Count; i++) {
-			currentTravelLocation = immediatePathToTravel[i];
+		for (int i = 1; i < pathToTravel.Count; i++) {
+			currentTravelLocation = pathToTravel[i];
 			a = c;
-			b = immediatePathToTravel[i - 1].Position;
+			b = pathToTravel[i - 1].Position;
 
 			int nextColumn = currentTravelLocation.ColumnIndex;
 			if (currentColumn != nextColumn) {
@@ -146,7 +142,7 @@ public class HexUnit : MonoBehaviour {
 			}
 
 			c = (b + currentTravelLocation.Position) * 0.5f;
-			Grid.IncreaseVisibility(immediatePathToTravel[i], VisionRange);
+			Grid.IncreaseVisibility(pathToTravel[i], VisionRange);
 
 			for (; t < 1f; t += Time.deltaTime * travelSpeed) {
 				transform.localPosition = Bezier.GetPoint(a, b, c, t);
@@ -155,7 +151,7 @@ public class HexUnit : MonoBehaviour {
 				transform.localRotation = Quaternion.LookRotation(d);
 				yield return null;
 			}
-			Grid.DecreaseVisibility(immediatePathToTravel[i], VisionRange);
+			Grid.DecreaseVisibility(pathToTravel[i], VisionRange);
 			t -= 1f;
 		}
 		currentTravelLocation = null;
@@ -174,8 +170,8 @@ public class HexUnit : MonoBehaviour {
 
 		transform.localPosition = location.Position;
 		orientation = transform.localRotation.eulerAngles.y;
-		ListPool<HexCell>.Add(immediatePathToTravel);
-		immediatePathToTravel = null;
+		ListPool<HexCell>.Add(pathToTravel);
+		pathToTravel = null;
 	}
 
 	IEnumerator LookAt (Vector3 point) {
