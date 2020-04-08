@@ -6,4 +6,5 @@ Unity Version: 2019.1.12f1
 ## Cool Feature Ideas (not too many though)
 
 I've now contributed so I get a portion of the revenue!
+
 Curtis: Kyle gets a percentage of the profits, now!
