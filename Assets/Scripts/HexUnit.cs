@@ -6,11 +6,13 @@ using System.IO;
 public class HexUnit : MonoBehaviour {
 
 	const float rotationSpeed = 180f;
-	const float travelSpeed = 4f;
+	const float travelSpeed = 1f;
 
 	public static HexUnit unitPrefab;
 
 	public HexGrid Grid { get; set; }
+
+	Animator animator;
 
 	public HexCell Location {
 		get {
@@ -58,6 +60,7 @@ public class HexUnit : MonoBehaviour {
 	List<HexCell> pathToTravel;
 
 	private void Awake() {
+		animator = GetComponentInChildren<Animator>();
 		pathToTravel = new List<HexCell>();
 	}
 
@@ -113,6 +116,7 @@ public class HexUnit : MonoBehaviour {
 
 	IEnumerator TravelPath () {
 		Vector3 a, b, c = pathToTravel[0].Position;
+		animator.Play("Charge");
 		yield return LookAt(pathToTravel[1].Position);
 
 		if (!currentTravelLocation) {
@@ -172,6 +176,7 @@ public class HexUnit : MonoBehaviour {
 		orientation = transform.localRotation.eulerAngles.y;
 		ListPool<HexCell>.Add(pathToTravel);
 		pathToTravel = null;
+		animator.Play("Idle");
 	}
 
 	IEnumerator LookAt (Vector3 point) {
