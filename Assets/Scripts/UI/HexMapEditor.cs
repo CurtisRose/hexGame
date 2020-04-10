@@ -83,6 +83,7 @@ public class HexMapEditor : MonoBehaviour {
 		SetEditMode(true);
 	}
 
+	int selectedTeam = 0;
 	void Update () {
 		if (!EventSystem.current.IsPointerOverGameObject()) {
 			if (Input.GetMouseButton(0)) {
@@ -94,18 +95,23 @@ public class HexMapEditor : MonoBehaviour {
 					DestroyUnit();
 				}
 				else {
-					CreateUnit(0);
+					CreateUnit(selectedTeam);
 				}
 				return;
 			}
-
-			if (Input.GetKeyDown(KeyCode.T)) {
-				if (Input.GetKey(KeyCode.LeftShift)) {
-					DestroyUnit();
-				} else {
-					CreateUnit(1);
+			if (Input.GetKeyDown(KeyCode.PageDown)) {
+				selectedTeam--;
+				if (selectedTeam < 0) {
+					selectedTeam = 0;
 				}
-				return;
+				Debug.Log("Selected Team Number " + selectedTeam);
+			}
+			if (Input.GetKeyDown(KeyCode.PageUp)) {
+				selectedTeam++;
+				if (selectedTeam >= TeamManager.GetNumTeams()) {
+					selectedTeam = TeamManager.GetNumTeams() - 1;
+				}
+				Debug.Log("Selected Team Number " + selectedTeam);
 			}
 		}
 		previousCell = null;
@@ -119,7 +125,6 @@ public class HexMapEditor : MonoBehaviour {
 	void CreateUnit (int teamNumber) {
 		HexCell cell = GetCellUnderCursor();
 		if (cell && !cell.Unit) {
-
 			hexGrid.AddUnit(
 				Instantiate(HexUnit.unitPrefab), cell, Random.Range(0f, 360f), teamNumber);
 		}

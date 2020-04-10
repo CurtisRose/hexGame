@@ -62,10 +62,9 @@ public class HexUnit : MonoBehaviour {
 		}
 		set {
 			team = value;
-			SkinnedMeshRenderer[] skins = GetComponentsInChildren<SkinnedMeshRenderer>();
+			Renderer[] skins = GetComponentsInChildren<Renderer>();
 			TeamManager teamManager = Grid.GetComponent<TeamManager>();
-			foreach (SkinnedMeshRenderer skin in skins) {
-				Debug.Log("Did this happen");
+			foreach (Renderer skin in skins) {
 				skin.material = teamManager.GetUnitMaterial(team);
 			}
 		}
