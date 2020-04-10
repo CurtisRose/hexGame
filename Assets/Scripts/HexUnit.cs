@@ -42,6 +42,7 @@ public class HexUnit : MonoBehaviour {
 			transform.localRotation = Quaternion.Euler(0f, value, 0f);
 		}
 	}
+	float orientation;
 
 	public int Speed {
 		get {
@@ -55,7 +56,21 @@ public class HexUnit : MonoBehaviour {
 		}
 	}
 
-	float orientation;
+	public TeamManager.TeamColor Team {
+		get {
+			return team;
+		}
+		set {
+			team = value;
+			SkinnedMeshRenderer[] skins = GetComponentsInChildren<SkinnedMeshRenderer>();
+			TeamManager teamManager = Grid.GetComponent<TeamManager>();
+			foreach (SkinnedMeshRenderer skin in skins) {
+				Debug.Log("Did this happen");
+				skin.material = teamManager.GetUnitMaterial(team);
+			}
+		}
+	}
+	TeamManager.TeamColor team;
 
 	List<HexCell> pathToTravel;
 
@@ -248,13 +263,15 @@ public class HexUnit : MonoBehaviour {
 	public void Save (BinaryWriter writer) {
 		location.coordinates.Save(writer);
 		writer.Write(orientation);
+		writer.Write((int)team);
 	}
 
 	public static void Load (BinaryReader reader, HexGrid grid) {
 		HexCoordinates coordinates = HexCoordinates.Load(reader);
 		float orientation = reader.ReadSingle();
+		int teamNumber = reader.ReadInt32();
 		grid.AddUnit(
-			Instantiate(unitPrefab), grid.GetCell(coordinates), orientation
+			Instantiate(unitPrefab), grid.GetCell(coordinates), orientation, teamNumber
 		);
 	}
 

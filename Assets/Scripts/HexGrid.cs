@@ -44,7 +44,10 @@ public class HexGrid : MonoBehaviour {
 
 	HexCellShaderData cellShaderData;
 
+	TeamManager teamManager;
+
 	void Awake () {
+		teamManager = GetComponent<TeamManager>();
 		HexMetrics.noiseSource = noiseSource;
 		HexMetrics.InitializeHashGrid(seed);
 		HexUnit.unitPrefab = unitPrefab;
@@ -58,11 +61,12 @@ public class HexGrid : MonoBehaviour {
 	}
 
 
-	public void AddUnit (HexUnit unit, HexCell location, float orientation) {
+	public void AddUnit (HexUnit unit, HexCell location, float orientation, int teamNumber) {
 		units.Add(unit);
 		unit.Grid = this;
 		unit.Location = location;
 		unit.Orientation = orientation;
+		unit.Team = teamManager.GetTeamColor(teamNumber);
 	}
 
 	public void RemoveUnit (HexUnit unit) {

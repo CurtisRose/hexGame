@@ -94,7 +94,16 @@ public class HexMapEditor : MonoBehaviour {
 					DestroyUnit();
 				}
 				else {
-					CreateUnit();
+					CreateUnit(0);
+				}
+				return;
+			}
+
+			if (Input.GetKeyDown(KeyCode.T)) {
+				if (Input.GetKey(KeyCode.LeftShift)) {
+					DestroyUnit();
+				} else {
+					CreateUnit(1);
 				}
 				return;
 			}
@@ -107,13 +116,14 @@ public class HexMapEditor : MonoBehaviour {
 			hexGrid.GetCell(Camera.main.ScreenPointToRay(Input.mousePosition));
 	}
 
-	void CreateUnit () {
+	void CreateUnit (int teamNumber) {
 		HexCell cell = GetCellUnderCursor();
 		if (cell && !cell.Unit) {
+
 			hexGrid.AddUnit(
-				Instantiate(HexUnit.unitPrefab), cell, Random.Range(0f, 360f)
-			);
+				Instantiate(HexUnit.unitPrefab), cell, Random.Range(0f, 360f), teamNumber);
 		}
+
 	}
 
 	void DestroyUnit () {
