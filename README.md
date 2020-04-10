@@ -16,3 +16,12 @@ Different tiles provide different positives and negatives like extra defense, or
 Different units have different types of attacks, for example riflemen attack a unit, as opposed to a tile, whereas mortar teams attack tiles as opposed to units. Rifle men have their attacks obstructed by cliffs and trees, where mortar teams can fire over them.
 
 If anyone has any additional ideas, feel free to add them here, or add them as tasks to the Project.
+
+(On the Movement branch)
+When you give orders to the units, they get added to a queue, They do not execute the orders yet.
+When you hit space bar, you are 'ending your turn'. At this point the units will begin following their predetermined paths.
+If a move order spans multiple turns, a command will be queued for each consecutive turn. Just keep hitting spacebar to end those turns.
+
+(On the Attack branch)
+You can use pageUp and pageDown to switch whith team a unit you spawn is. So, before placing a unit, pick the team then place them.
+This will later be used to determine friends from foes.
