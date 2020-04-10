@@ -15,6 +15,40 @@ public class MoveCommand : Command
     }
 
     public override bool ValidateAddCommand(ref List<Command> commands) {
+        Debug.Log("Starting Command Validation");
+
+        // If the location you are moving to is already occupied, don't add command
+        if (path[path.Count - 1].Unit != null) {
+            Debug.Log("Target Location Occupied");
+            return false;
+        }
+
+        // If command has already been given to this unit, replace the command with this command
+        Command commandToReplace = null;
+        foreach (MoveCommand otherMoveCommand in commands) {
+            if (otherMoveCommand.GetHexUnit() == this.hexUnit) {
+                commandToReplace = otherMoveCommand;
+                break;
+            }
+        }
+        if (commandToReplace != null) {
+            Debug.Log("Command has already been issued");
+            commands.Remove(commandToReplace);
+            commandToReplace = null;
+        }
+
+        // If the location you are moving to will be occupied next turn, remove old command, add this one
+        foreach (MoveCommand otherMoveCommand in commands) {
+            if (GetTargetCell() == otherMoveCommand.GetTargetCell()) {
+                commandToReplace = otherMoveCommand;
+                break;
+            }
+        }
+        if (commandToReplace != null) {
+            Debug.Log("Command interferes with earlier command");
+            commands.Remove(commandToReplace);
+            commandToReplace = null;
+        }
         commands.Add(this);
         return true;
     }
@@ -30,5 +64,9 @@ public class MoveCommand : Command
 
     public HexUnit GetHexUnit() {
         return hexUnit;
+    }
+
+    public HexCell GetTargetCell() {
+        return path[path.Count - 1];
     }
 }

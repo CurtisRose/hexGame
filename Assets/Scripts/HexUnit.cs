@@ -116,9 +116,11 @@ public class HexUnit : MonoBehaviour {
 
 	IEnumerator TravelPath () {
 		Vector3 a, b, c = pathToTravel[0].Position;
-		animator.Play("Charge");
+		animator.SetBool("isIdle", false);
+		animator.SetBool("isWalking", true);
 		yield return LookAt(pathToTravel[1].Position);
-
+		animator.SetBool("isRunning", true);
+		animator.SetBool("isWalking", false);
 		if (!currentTravelLocation) {
 			currentTravelLocation = pathToTravel[0];
 		}
@@ -176,7 +178,9 @@ public class HexUnit : MonoBehaviour {
 		orientation = transform.localRotation.eulerAngles.y;
 		ListPool<HexCell>.Add(pathToTravel);
 		pathToTravel = null;
-		animator.Play("Idle");
+
+		animator.SetBool("isIdle", true);
+		animator.SetBool("isRunning", false);
 	}
 
 	IEnumerator LookAt (Vector3 point) {
