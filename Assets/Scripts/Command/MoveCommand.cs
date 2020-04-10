@@ -38,16 +38,16 @@ public class MoveCommand : Command
         }
 
         // If the location you are moving to will be occupied next turn, remove old command, add this one
+        bool conflictingCommand = false;
         foreach (MoveCommand otherMoveCommand in commands) {
             if (GetTargetCell() == otherMoveCommand.GetTargetCell()) {
-                commandToReplace = otherMoveCommand;
+                conflictingCommand = true;
                 break;
             }
         }
-        if (commandToReplace != null) {
+        if (conflictingCommand) {
             Debug.Log("Command interferes with earlier command");
-            commands.Remove(commandToReplace);
-            commandToReplace = null;
+            return false;
         }
         commands.Add(this);
         return true;

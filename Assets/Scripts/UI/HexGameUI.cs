@@ -93,7 +93,8 @@ public class HexGameUI : MonoBehaviour {
 				if (goodCommand) {
 					commandList[turnNumber] = commands;
 				} else {
-					// What to do if invalid?
+					// Invalid command, don't continue.
+					return;
 				}
 				turnNumber++;
 			}
