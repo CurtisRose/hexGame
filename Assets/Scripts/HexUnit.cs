@@ -6,11 +6,13 @@ using System.IO;
 public class HexUnit : MonoBehaviour {
 
 	const float rotationSpeed = 180f;
-	const float travelSpeed = 4f;
+	const float travelSpeed = 1f;
 
 	public static HexUnit unitPrefab;
 
 	public HexGrid Grid { get; set; }
+
+	Animator animator;
 
 	public HexCell Location {
 		get {
@@ -57,6 +59,11 @@ public class HexUnit : MonoBehaviour {
 
 	List<HexCell> pathToTravel;
 
+	private void Awake() {
+		animator = GetComponentInChildren<Animator>();
+		pathToTravel = new List<HexCell>();
+	}
+
 	public void ValidateLocation () {
 		transform.localPosition = location.Position;
 	}
@@ -65,19 +72,55 @@ public class HexUnit : MonoBehaviour {
 		return cell.IsExplored && !cell.IsUnderwater && !cell.Unit;
 	}
 
-	public void Travel (List<HexCell> path) {
-		location.Unit = null;
-		location = path[path.Count - 1];
-		location.Unit = this;
+	public void SetPath(List<HexCell> path) {
 		pathToTravel = path;
-		StopAllCoroutines();
-		StartCoroutine(TravelPath());
+	}
+
+	public void FollowPath() {
+		if (pathToTravel.Count > 0) {
+			location.Unit = null;
+			location = pathToTravel[pathToTravel.Count - 1];
+			location.Unit = this;
+			StopAllCoroutines();
+			StartCoroutine(TravelPath());
+		}
+	}
+
+
+	// Returns the one turn path and alters the input path to be the remainder of the path
+	public List<HexCell> PartitionPath(ref List<HexCell> fullPathToTravel) {
+		// If the path to follow only includes the current location, path is invalid, do not follow
+		if (fullPathToTravel.Count <= 1) {
+			return null;
+		}
+
+		List<HexCell> immediatePathToTravel = new List<HexCell>();
+
+		foreach (HexCell hexCell in fullPathToTravel) {
+			if (hexCell.Distance < Speed) {
+				immediatePathToTravel.Add(hexCell);
+			}
+		}
+
+		fullPathToTravel.RemoveRange(0, immediatePathToTravel.Count - 1);
+
+		// Seems super messy, but partitioning works by using the distances on each hex.
+		// After the first partition the remaining hexes have the old distances
+		// So, we have to shift the distances, acting as if it is a new turn
+		foreach (HexCell hexCell in fullPathToTravel) {
+			hexCell.Distance -= Speed;
+		}
+
+		return immediatePathToTravel;
 	}
 
 	IEnumerator TravelPath () {
 		Vector3 a, b, c = pathToTravel[0].Position;
+		animator.SetBool("isIdle", false);
+		animator.SetBool("isWalking", true);
 		yield return LookAt(pathToTravel[1].Position);
-
+		animator.SetBool("isRunning", true);
+		animator.SetBool("isWalking", false);
 		if (!currentTravelLocation) {
 			currentTravelLocation = pathToTravel[0];
 		}
@@ -135,6 +178,9 @@ public class HexUnit : MonoBehaviour {
 		orientation = transform.localRotation.eulerAngles.y;
 		ListPool<HexCell>.Add(pathToTravel);
 		pathToTravel = null;
+
+		animator.SetBool("isIdle", true);
+		animator.SetBool("isRunning", false);
 	}
 
 	IEnumerator LookAt (Vector3 point) {
@@ -185,13 +231,8 @@ public class HexUnit : MonoBehaviour {
 		if (fromCell.HasRoadThroughEdge(direction)) {
 			moveCost = 1;
 		}
-		else if (fromCell.Walled != toCell.Walled) {
-			return -1;
-		}
 		else {
 			moveCost = edgeType == HexEdgeType.Flat ? 5 : 10;
-			moveCost +=
-				toCell.UrbanLevel + toCell.FarmLevel + toCell.PlantLevel;
 		}
 		return moveCost;
 	}

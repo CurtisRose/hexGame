@@ -53,6 +53,11 @@ public class HexGrid : MonoBehaviour {
 		CreateMap(cellCountX, cellCountZ, wrapping);
 	}
 
+	public List<HexUnit> GetUnits() {
+		return units;
+	}
+
+
 	public void AddUnit (HexUnit unit, HexCell location, float orientation) {
 		units.Add(unit);
 		unit.Grid = this;

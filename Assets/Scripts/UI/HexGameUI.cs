@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 using UnityEngine.EventSystems;
 
 public class HexGameUI : MonoBehaviour {
@@ -8,6 +9,10 @@ public class HexGameUI : MonoBehaviour {
 	HexCell currentCell;
 
 	HexUnit selectedUnit;
+
+	bool endTurn = false;
+
+	List<List<Command>> commandList = new List<List<Command>>();
 
 	public void SetEditMode (bool toggle) {
 		enabled = !toggle;
@@ -28,12 +33,23 @@ public class HexGameUI : MonoBehaviour {
 			}
 			else if (selectedUnit) {
 				if (Input.GetMouseButtonDown(1)) {
-					DoMove();
+					GiveCommand();
 				}
 				else {
 					DoPathfinding();
 				}
 			}
+		}
+		if (Input.GetAxis("End Turn") > 0 && endTurn == false) {
+			endTurn = true;
+			if (commandList != null && commandList.Count > 0) {
+				foreach (Command command in commandList[0]) {
+					command.Execute();
+				}
+				commandList.RemoveAt(0);
+			}
+		} else if (Input.GetAxis("End Turn") == 0) {
+			endTurn = false;
 		}
 	}
 
@@ -56,10 +72,32 @@ public class HexGameUI : MonoBehaviour {
 		}
 	}
 
-	void DoMove () {
+	void GiveCommand() {
 		if (grid.HasPath) {
-			selectedUnit.Travel(grid.GetPath());
-			grid.ClearPath();
+			//selectedUnit.SetPath(grid.GetPath());
+			List<HexCell> fullPath = grid.GetPath();
+			int turnNumber = 0;
+
+			while (fullPath.Count > 1) {
+				List<HexCell> partialPath = selectedUnit.PartitionPath(ref fullPath);
+				MoveCommand moveCommand = new MoveCommand(selectedUnit, partialPath);
+				List<Command> commands;
+				if (commandList != null && commandList.Count < (turnNumber+1)) {
+					commandList.Add(new List<Command>());
+					commands = new List<Command>();
+				} else {
+					commands = commandList[turnNumber];
+				}
+				bool goodCommand = moveCommand.ValidateAddCommand(ref commands);
+
+				if (goodCommand) {
+					commandList[turnNumber] = commands;
+				} else {
+					// Invalid command, don't continue.
+					return;
+				}
+				turnNumber++;
+			}
 		}
 	}
 
