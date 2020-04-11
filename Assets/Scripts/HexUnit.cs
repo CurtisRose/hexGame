@@ -10,9 +10,19 @@ public class HexUnit : MonoBehaviour {
 
 	public static HexUnit unitPrefab;
 
+	private HealthBar healthBar;
+
 	public HexGrid Grid { get; set; }
 
 	Animator animator;
+
+	public uint Damage { 
+		get {
+			return damage;
+		}
+		set {}
+	}
+	uint damage = 50;
 
 	public HexCell Location {
 		get {
@@ -56,6 +66,12 @@ public class HexUnit : MonoBehaviour {
 		}
 	}
 
+	public uint Health {
+		get {
+			return healthBar.Health;
+		}
+	}
+
 	public TeamManager.TeamColor Team {
 		get {
 			return team;
@@ -75,6 +91,7 @@ public class HexUnit : MonoBehaviour {
 
 	private void Awake() {
 		animator = GetComponentInChildren<Animator>();
+		healthBar = gameObject.AddComponent<HealthBar>();
 		pathToTravel = new List<HexCell>();
 	}
 
@@ -241,22 +258,63 @@ public class HexUnit : MonoBehaviour {
 		if (edgeType == HexEdgeType.Cliff) {
 			return -1;
 		}
-		int moveCost;
-		if (fromCell.HasRoadThroughEdge(direction)) {
-			moveCost = 1;
+		int moveCost = 0;
+		if(toCell.HasRiver) {
+			moveCost = 10;
+		}
+		if (edgeType == HexEdgeType.Flat) {
+			moveCost = 5;
 		}
 		else {
 			moveCost = edgeType == HexEdgeType.Flat ? 5 : 10;
 		}
+		if (fromCell.HasRoadThroughEdge(direction)) {
+			moveCost = 3;
+		}
 		return moveCost;
 	}
+
+	public void TakeDamage(uint damageAmount) {
+		animator.Play("TakeDamage");
+		healthBar.Damage(damageAmount);
+		Debug.Log("Taking Damage: current health " + Health);
+	}
+
+	public void Heal(HexUnit enemyUnit) {
+		enemyUnit.Heal(damage);
+		animator.Play("Attack");
+	}
+
+	public void Heal(uint healAmount) {
+		healthBar.Heal(healAmount);
+	}
+
+	public void StartAttack(HexUnit enemyUnit) {
+		StopAllCoroutines();
+		StartCoroutine(Attack(enemyUnit));
+	}
+
+	IEnumerator Attack(HexUnit enemyUnit) {
+		animator.SetBool("isIdle", false);
+		animator.SetBool("isWalking", true);
+		yield return LookAt(enemyUnit.Location.Position);
+		animator.SetBool("isIdle", true);
+		animator.SetBool("isWalking", false);
+		yield return animator.IsInTransition(0);
+
+		enemyUnit.TakeDamage(damage);
+		animator.Play("Attack");
+	}
+
 
 	public void Die () {
 		if (location) {
 			Grid.DecreaseVisibility(location, VisionRange);
 		}
 		location.Unit = null;
-		Destroy(gameObject);
+		animator.StopPlayback();
+		animator.Play("Die");
+		Destroy(gameObject, 3.0f);
 	}
 
 	public void Save (BinaryWriter writer) {

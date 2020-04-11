@@ -4,18 +4,22 @@ using UnityEngine;
 
 public class MoveCommand : Command
 {
-    private HexUnit hexUnit;
     private List<HexCell> path;
     private int turnNumber;
 
     public MoveCommand(HexUnit hexUnit, List<HexCell> path) {
-
         this.hexUnit = hexUnit;
         this.path = path;
     }
 
     public override bool ValidateAddCommand(ref List<Command> commands) {
         Debug.Log("Starting Command Validation");
+
+        // If for some reason the unit doesn't exist, do not add command.
+        if (hexUnit == null) {
+            Debug.Log("This Unit doesn't exist, do not add command.");
+            return false;
+        }
 
         // If the location you are moving to is already occupied, don't add command
         if (path[path.Count - 1].Unit != null) {
@@ -60,10 +64,6 @@ public class MoveCommand : Command
 
     public override void Undo() {
 
-    }
-
-    public HexUnit GetHexUnit() {
-        return hexUnit;
     }
 
     public HexCell GetTargetCell() {

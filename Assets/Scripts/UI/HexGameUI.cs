@@ -33,7 +33,15 @@ public class HexGameUI : MonoBehaviour {
 			}
 			else if (selectedUnit) {
 				if (Input.GetMouseButtonDown(1)) {
-					GiveCommand();
+					HexCell targetCell = GetCellUnderCursor();
+					if (targetCell != null) {
+						HexUnit targetUnit = targetCell.Unit;
+						if (targetUnit != null) {
+							GiveAttackCommand(targetUnit);
+						} else {
+							GiveMoveCommand();
+						}
+					}
 				}
 				else {
 					DoPathfinding();
@@ -50,6 +58,13 @@ public class HexGameUI : MonoBehaviour {
 			}
 		} else if (Input.GetAxis("End Turn") == 0) {
 			endTurn = false;
+		} 
+		if (Input.GetKeyDown(KeyCode.Delete)) {
+			Debug.Log("delete was pressed");
+			if (selectedUnit != null) {
+				Debug.Log("Test Taking Damage");
+				selectedUnit.TakeDamage(200);
+			}
 		}
 	}
 
@@ -72,7 +87,20 @@ public class HexGameUI : MonoBehaviour {
 		}
 	}
 
-	void GiveCommand() {
+	void CleanOutCommands() {
+		// Shitty Code, but, if the unit attributed to a command has died, remove all of it's commands.
+		List<Command> commandsToReplace = new List<Command>();
+		foreach (List<Command> commands in commandList) {
+			for (int i = 0; i < commands.Count; i++) {
+				if (commands[i].GetHexUnit() == null) {
+					commands.RemoveAt(i);
+				}
+			}
+		}
+	}
+
+	void GiveMoveCommand() {
+		CleanOutCommands();
 		if (grid.HasPath) {
 			//selectedUnit.SetPath(grid.GetPath());
 			List<HexCell> fullPath = grid.GetPath();
@@ -99,6 +127,31 @@ public class HexGameUI : MonoBehaviour {
 				turnNumber++;
 			}
 		}
+	}
+
+	void GiveAttackCommand(HexUnit targetUnit) {
+		Debug.Log("Attempting to Give Attack Command");
+		CleanOutCommands();
+		List<Command> commands;
+		if (commandList != null && commandList.Count == 0) {
+			commandList.Add(new List<Command>());
+			commands = new List<Command>();
+		} else {
+
+			commands = commandList[0];
+		}
+		AttackCommand attackCommand = new AttackCommand(selectedUnit, targetUnit);
+		bool goodCommand = attackCommand.ValidateAddCommand(ref commands);
+
+		if (goodCommand) {
+			commandList[0] = commands;
+		} else {
+			return;
+		}
+	}
+
+	HexCell GetCellUnderCursor() {
+		return grid.GetCell(Camera.main.ScreenPointToRay(Input.mousePosition));
 	}
 
 	bool UpdateCurrentCell () {

@@ -340,6 +340,10 @@ public class HexCell : MonoBehaviour {
 		);
 	}
 
+	public HexCell[] GetNeighbors(){
+		return neighbors;
+	}
+
 	public HexEdgeType GetEdgeType (HexCell otherCell) {
 		return HexMetrics.GetEdgeType(
 			elevation, otherCell.elevation
