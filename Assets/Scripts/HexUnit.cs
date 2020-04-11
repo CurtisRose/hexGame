@@ -100,7 +100,7 @@ public class HexUnit : MonoBehaviour {
 	}
 
 	public bool IsValidDestination (HexCell cell) {
-		return cell.IsExplored && !cell.IsUnderwater && !cell.Unit;
+		return cell.IsExplored && !cell.IsUnderwater /*&& !cell.Unit*/;
 	}
 
 	public void SetPath(List<HexCell> path) {
