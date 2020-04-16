@@ -55,8 +55,8 @@ public class HexCellShaderData : MonoBehaviour {
 	public void RefreshVisibility (HexCell cell) {
 		int index = cell.Index;
 		if (ImmediateMode) {
-			cellTextureData[index].r = cell.IsVisible ? (byte)255 : (byte)0;
-			cellTextureData[index].g = cell.IsExplored ? (byte)255 : (byte)0;
+			cellTextureData[index].r = cell.IsVisible(TurnManager.GetCurrentPlayer()) ? (byte)255 : (byte)0;
+			cellTextureData[index].g = cell.IsExplored(TurnManager.GetCurrentPlayer()) ? (byte)255 : (byte)0;
 		}
 		else if (cellTextureData[index].b != 255) {
 			cellTextureData[index].b = 255;
@@ -104,13 +104,17 @@ public class HexCellShaderData : MonoBehaviour {
 		Color32 data = cellTextureData[index];
 		bool stillUpdating = false;
 
-		if (cell.IsExplored && data.g < 255) {
+		if (cell.IsExplored(TurnManager.GetCurrentPlayer()) && data.g < 255) {
 			stillUpdating = true;
 			int t = data.g + delta;
 			data.g = t >= 255 ? (byte)255 : (byte)t;
+		} else if (data.g > 0) {
+			stillUpdating = true;
+			int t = data.g - delta;
+			data.g = t < 0 ? (byte)0 : (byte)t;
 		}
 
-		if (cell.IsVisible) {
+		if (cell.IsVisible(TurnManager.GetCurrentPlayer())) {
 			if (data.r < 255) {
 				stillUpdating = true;
 				int t = data.r + delta;

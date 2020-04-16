@@ -10,9 +10,19 @@ public class HexUnit : MonoBehaviour {
 
 	public static HexUnit unitPrefab;
 
+	private HealthBar healthBar;
+
 	public HexGrid Grid { get; set; }
 
 	Animator animator;
+
+	public uint Damage { 
+		get {
+			return damage;
+		}
+		set {}
+	}
+	uint damage = 50;
 
 	public HexCell Location {
 		get {
@@ -20,12 +30,12 @@ public class HexUnit : MonoBehaviour {
 		}
 		set {
 			if (location) {
-				Grid.DecreaseVisibility(location, VisionRange);
+				Grid.DecreaseVisibility(location, VisionRange, team);
 				location.Unit = null;
 			}
 			location = value;
 			value.Unit = this;
-			Grid.IncreaseVisibility(value, VisionRange);
+			Grid.IncreaseVisibility(location, VisionRange, team);
 			transform.localPosition = value.Position;
 			Grid.MakeChildOfColumn(transform, value.ColumnIndex);
 		}
@@ -42,6 +52,7 @@ public class HexUnit : MonoBehaviour {
 			transform.localRotation = Quaternion.Euler(0f, value, 0f);
 		}
 	}
+	float orientation;
 
 	public int Speed {
 		get {
@@ -55,12 +66,19 @@ public class HexUnit : MonoBehaviour {
 		}
 	}
 
-	float orientation;
+	public uint Health {
+		get {
+			return healthBar.Health;
+		}
+	}
+
+	Team team;
 
 	List<HexCell> pathToTravel;
 
 	private void Awake() {
 		animator = GetComponentInChildren<Animator>();
+		healthBar = gameObject.AddComponent<HealthBar>();
 		pathToTravel = new List<HexCell>();
 	}
 
@@ -69,7 +87,7 @@ public class HexUnit : MonoBehaviour {
 	}
 
 	public bool IsValidDestination (HexCell cell) {
-		return cell.IsExplored && !cell.IsUnderwater && !cell.Unit;
+		return cell.IsExplored(team) && !cell.IsUnderwater /*&& !cell.Unit*/;
 	}
 
 	public void SetPath(List<HexCell> path) {
@@ -124,7 +142,7 @@ public class HexUnit : MonoBehaviour {
 		if (!currentTravelLocation) {
 			currentTravelLocation = pathToTravel[0];
 		}
-		Grid.DecreaseVisibility(currentTravelLocation, VisionRange);
+		Grid.DecreaseVisibility(currentTravelLocation, VisionRange, team);
 		int currentColumn = currentTravelLocation.ColumnIndex;
 
 		float t = Time.deltaTime * travelSpeed;
@@ -148,7 +166,7 @@ public class HexUnit : MonoBehaviour {
 			}
 
 			c = (b + currentTravelLocation.Position) * 0.5f;
-			Grid.IncreaseVisibility(pathToTravel[i], VisionRange);
+			Grid.IncreaseVisibility(pathToTravel[i], VisionRange, team);
 
 			for (; t < 1f; t += Time.deltaTime * travelSpeed) {
 				transform.localPosition = Bezier.GetPoint(a, b, c, t);
@@ -157,7 +175,7 @@ public class HexUnit : MonoBehaviour {
 				transform.localRotation = Quaternion.LookRotation(d);
 				yield return null;
 			}
-			Grid.DecreaseVisibility(pathToTravel[i], VisionRange);
+			Grid.DecreaseVisibility(pathToTravel[i], VisionRange, team);
 			t -= 1f;
 		}
 		currentTravelLocation = null;
@@ -165,7 +183,7 @@ public class HexUnit : MonoBehaviour {
 		a = c;
 		b = location.Position;
 		c = b;
-		Grid.IncreaseVisibility(location, VisionRange);
+		Grid.IncreaseVisibility(location, VisionRange, team);
 		for (; t < 1f; t += Time.deltaTime * travelSpeed) {
 			transform.localPosition = Bezier.GetPoint(a, b, c, t);
 			Vector3 d = Bezier.GetDerivative(a, b, c, t);
@@ -227,34 +245,90 @@ public class HexUnit : MonoBehaviour {
 		if (edgeType == HexEdgeType.Cliff) {
 			return -1;
 		}
-		int moveCost;
-		if (fromCell.HasRoadThroughEdge(direction)) {
-			moveCost = 1;
+		int moveCost = 0;
+		if(toCell.HasRiver) {
+			moveCost = 10;
+		}
+		if (edgeType == HexEdgeType.Flat) {
+			moveCost = 5;
 		}
 		else {
 			moveCost = edgeType == HexEdgeType.Flat ? 5 : 10;
 		}
+		if (fromCell.HasRoadThroughEdge(direction)) {
+			moveCost = 3;
+		}
 		return moveCost;
 	}
 
+	public void TakeDamage(uint damageAmount) {
+		animator.Play("TakeDamage");
+		healthBar.Damage(damageAmount);
+		Debug.Log("Taking Damage: current health " + Health);
+	}
+
+	public void Heal(HexUnit enemyUnit) {
+		enemyUnit.Heal(damage);
+		animator.Play("Attack");
+	}
+
+	public void Heal(uint healAmount) {
+		healthBar.Heal(healAmount);
+	}
+
+	public Team GetTeam() {
+		return team;
+	}
+
+	public void SetTeam(Team team) {
+		this.team = team;
+		Renderer[] skins = GetComponentsInChildren<Renderer>();
+		TeamManager teamManager = Grid.GetComponent<TeamManager>();
+		foreach (Renderer skin in skins) {
+			skin.material = teamManager.GetUnitMaterial(team);
+		}
+	}
+
+	public void StartAttack(HexUnit enemyUnit) {
+		StopAllCoroutines();
+		StartCoroutine(Attack(enemyUnit));
+	}
+
+	IEnumerator Attack(HexUnit enemyUnit) {
+		animator.SetBool("isIdle", false);
+		animator.SetBool("isWalking", true);
+		yield return LookAt(enemyUnit.Location.Position);
+		animator.SetBool("isIdle", true);
+		animator.SetBool("isWalking", false);
+		yield return animator.IsInTransition(0);
+
+		enemyUnit.TakeDamage(damage);
+		animator.Play("Attack");
+	}
+
+
 	public void Die () {
 		if (location) {
-			Grid.DecreaseVisibility(location, VisionRange);
+			Grid.DecreaseVisibility(location, VisionRange, team);
 		}
 		location.Unit = null;
-		Destroy(gameObject);
+		animator.StopPlayback();
+		animator.Play("Die");
+		Destroy(gameObject, 3.0f);
 	}
 
 	public void Save (BinaryWriter writer) {
 		location.coordinates.Save(writer);
 		writer.Write(orientation);
+		writer.Write((int)team);
 	}
 
 	public static void Load (BinaryReader reader, HexGrid grid) {
 		HexCoordinates coordinates = HexCoordinates.Load(reader);
 		float orientation = reader.ReadSingle();
+		int teamNumber = reader.ReadInt32();
 		grid.AddUnit(
-			Instantiate(unitPrefab), grid.GetCell(coordinates), orientation
+			Instantiate(unitPrefab), grid.GetCell(coordinates), orientation, (Team)teamNumber
 		);
 	}
 
@@ -262,8 +336,8 @@ public class HexUnit : MonoBehaviour {
 		if (location) {
 			transform.localPosition = location.Position;
 			if (currentTravelLocation) {
-				Grid.IncreaseVisibility(location, VisionRange);
-				Grid.DecreaseVisibility(currentTravelLocation, VisionRange);
+				Grid.IncreaseVisibility(location, VisionRange, team);
+				Grid.DecreaseVisibility(currentTravelLocation, VisionRange, team);
 				currentTravelLocation = null;
 			}
 		}
