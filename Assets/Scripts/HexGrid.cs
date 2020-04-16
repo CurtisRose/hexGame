@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
-using System.Collections;
 using System.Collections.Generic;
 
 public class HexGrid : MonoBehaviour {
@@ -47,13 +46,13 @@ public class HexGrid : MonoBehaviour {
 	TeamManager teamManager;
 
 	void Awake () {
-		teamManager = GetComponent<TeamManager>();
 		HexMetrics.noiseSource = noiseSource;
 		HexMetrics.InitializeHashGrid(seed);
 		HexUnit.unitPrefab = unitPrefab;
 		cellShaderData = gameObject.AddComponent<HexCellShaderData>();
 		cellShaderData.Grid = this;
 		CreateMap(cellCountX, cellCountZ, wrapping);
+		teamManager = GetComponent<TeamManager>();
 	}
 
 	public List<HexUnit> GetUnits() {
@@ -61,12 +60,23 @@ public class HexGrid : MonoBehaviour {
 	}
 
 
-	public void AddUnit (HexUnit unit, HexCell location, float orientation, int teamNumber) {
+	public void AddUnit (HexUnit unit, HexCell location, float orientation) {
 		units.Add(unit);
 		unit.Grid = this;
+		// SetTeam needs to be done before setting the Location for fog of war visibility reasons...
+		unit.SetTeam(TurnManager.GetCurrentPlayer());
 		unit.Location = location;
 		unit.Orientation = orientation;
-		unit.Team = teamManager.GetTeamColor(teamNumber);
+	}
+
+	// Only for use with loading and saving, use the one above for setting teams properly
+	public void AddUnit(HexUnit unit, HexCell location, float orientation, Team teamNumber) {
+		units.Add(unit);
+		unit.Grid = this;
+		// SetTeam needs to be done before setting the Location for fog of war visibility reasons...
+		unit.SetTeam(teamNumber);
+		unit.Location = location;
+		unit.Orientation = orientation;
 	}
 
 	public void RemoveUnit (HexUnit unit) {
@@ -428,18 +438,18 @@ public class HexGrid : MonoBehaviour {
 		return false;
 	}
 
-	public void IncreaseVisibility (HexCell fromCell, int range) {
+	public void IncreaseVisibility (HexCell fromCell, int range, Team team) {
 		List<HexCell> cells = GetVisibleCells(fromCell, range);
 		for (int i = 0; i < cells.Count; i++) {
-			cells[i].IncreaseVisibility();
+			cells[i].IncreaseVisibility(team);
 		}
 		ListPool<HexCell>.Add(cells);
 	}
 
-	public void DecreaseVisibility (HexCell fromCell, int range) {
+	public void DecreaseVisibility (HexCell fromCell, int range, Team team) {
 		List<HexCell> cells = GetVisibleCells(fromCell, range);
 		for (int i = 0; i < cells.Count; i++) {
-			cells[i].DecreaseVisibility();
+			cells[i].DecreaseVisibility(team);
 		}
 		ListPool<HexCell>.Add(cells);
 	}
@@ -450,7 +460,7 @@ public class HexGrid : MonoBehaviour {
 		}
 		for (int i = 0; i < units.Count; i++) {
 			HexUnit unit = units[i];
-			IncreaseVisibility(unit.Location, unit.VisionRange);
+			IncreaseVisibility(unit.Location, unit.VisionRange, unit.GetTeam());
 		}
 	}
 
@@ -464,7 +474,9 @@ public class HexGrid : MonoBehaviour {
 		else {
 			searchFrontier.Clear();
 		}
-
+		if (fromCell == null) {
+			Debug.Log("TEST");
+		}
 		range += fromCell.ViewElevation;
 		fromCell.SearchPhase = searchFrontierPhase;
 		fromCell.Distance = 0;

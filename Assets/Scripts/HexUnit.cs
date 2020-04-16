@@ -30,12 +30,12 @@ public class HexUnit : MonoBehaviour {
 		}
 		set {
 			if (location) {
-				Grid.DecreaseVisibility(location, VisionRange);
+				Grid.DecreaseVisibility(location, VisionRange, team);
 				location.Unit = null;
 			}
 			location = value;
 			value.Unit = this;
-			Grid.IncreaseVisibility(value, VisionRange);
+			Grid.IncreaseVisibility(location, VisionRange, team);
 			transform.localPosition = value.Position;
 			Grid.MakeChildOfColumn(transform, value.ColumnIndex);
 		}
@@ -72,20 +72,7 @@ public class HexUnit : MonoBehaviour {
 		}
 	}
 
-	public TeamManager.TeamColor Team {
-		get {
-			return team;
-		}
-		set {
-			team = value;
-			Renderer[] skins = GetComponentsInChildren<Renderer>();
-			TeamManager teamManager = Grid.GetComponent<TeamManager>();
-			foreach (Renderer skin in skins) {
-				skin.material = teamManager.GetUnitMaterial(team);
-			}
-		}
-	}
-	TeamManager.TeamColor team;
+	Team team;
 
 	List<HexCell> pathToTravel;
 
@@ -100,7 +87,7 @@ public class HexUnit : MonoBehaviour {
 	}
 
 	public bool IsValidDestination (HexCell cell) {
-		return cell.IsExplored && !cell.IsUnderwater /*&& !cell.Unit*/;
+		return cell.IsExplored(team) && !cell.IsUnderwater /*&& !cell.Unit*/;
 	}
 
 	public void SetPath(List<HexCell> path) {
@@ -155,7 +142,7 @@ public class HexUnit : MonoBehaviour {
 		if (!currentTravelLocation) {
 			currentTravelLocation = pathToTravel[0];
 		}
-		Grid.DecreaseVisibility(currentTravelLocation, VisionRange);
+		Grid.DecreaseVisibility(currentTravelLocation, VisionRange, team);
 		int currentColumn = currentTravelLocation.ColumnIndex;
 
 		float t = Time.deltaTime * travelSpeed;
@@ -179,7 +166,7 @@ public class HexUnit : MonoBehaviour {
 			}
 
 			c = (b + currentTravelLocation.Position) * 0.5f;
-			Grid.IncreaseVisibility(pathToTravel[i], VisionRange);
+			Grid.IncreaseVisibility(pathToTravel[i], VisionRange, team);
 
 			for (; t < 1f; t += Time.deltaTime * travelSpeed) {
 				transform.localPosition = Bezier.GetPoint(a, b, c, t);
@@ -188,7 +175,7 @@ public class HexUnit : MonoBehaviour {
 				transform.localRotation = Quaternion.LookRotation(d);
 				yield return null;
 			}
-			Grid.DecreaseVisibility(pathToTravel[i], VisionRange);
+			Grid.DecreaseVisibility(pathToTravel[i], VisionRange, team);
 			t -= 1f;
 		}
 		currentTravelLocation = null;
@@ -196,7 +183,7 @@ public class HexUnit : MonoBehaviour {
 		a = c;
 		b = location.Position;
 		c = b;
-		Grid.IncreaseVisibility(location, VisionRange);
+		Grid.IncreaseVisibility(location, VisionRange, team);
 		for (; t < 1f; t += Time.deltaTime * travelSpeed) {
 			transform.localPosition = Bezier.GetPoint(a, b, c, t);
 			Vector3 d = Bezier.GetDerivative(a, b, c, t);
@@ -289,6 +276,19 @@ public class HexUnit : MonoBehaviour {
 		healthBar.Heal(healAmount);
 	}
 
+	public Team GetTeam() {
+		return team;
+	}
+
+	public void SetTeam(Team team) {
+		this.team = team;
+		Renderer[] skins = GetComponentsInChildren<Renderer>();
+		TeamManager teamManager = Grid.GetComponent<TeamManager>();
+		foreach (Renderer skin in skins) {
+			skin.material = teamManager.GetUnitMaterial(team);
+		}
+	}
+
 	public void StartAttack(HexUnit enemyUnit) {
 		StopAllCoroutines();
 		StartCoroutine(Attack(enemyUnit));
@@ -309,7 +309,7 @@ public class HexUnit : MonoBehaviour {
 
 	public void Die () {
 		if (location) {
-			Grid.DecreaseVisibility(location, VisionRange);
+			Grid.DecreaseVisibility(location, VisionRange, team);
 		}
 		location.Unit = null;
 		animator.StopPlayback();
@@ -328,7 +328,7 @@ public class HexUnit : MonoBehaviour {
 		float orientation = reader.ReadSingle();
 		int teamNumber = reader.ReadInt32();
 		grid.AddUnit(
-			Instantiate(unitPrefab), grid.GetCell(coordinates), orientation, teamNumber
+			Instantiate(unitPrefab), grid.GetCell(coordinates), orientation, (Team)teamNumber
 		);
 	}
 
@@ -336,8 +336,8 @@ public class HexUnit : MonoBehaviour {
 		if (location) {
 			transform.localPosition = location.Position;
 			if (currentTravelLocation) {
-				Grid.IncreaseVisibility(location, VisionRange);
-				Grid.DecreaseVisibility(currentTravelLocation, VisionRange);
+				Grid.IncreaseVisibility(location, VisionRange, team);
+				Grid.DecreaseVisibility(currentTravelLocation, VisionRange, team);
 				currentTravelLocation = null;
 			}
 		}

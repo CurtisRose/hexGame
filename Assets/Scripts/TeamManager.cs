@@ -2,20 +2,25 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+public enum Team { Blue, Red, Black, Green, Brown, Purple, Tan, White };
 public class TeamManager : MonoBehaviour {
     static int numTeams = 8;
-    public enum TeamColor { Blue, Red, Black, Green, Brown, Purple, Tan, White };
     public Material[] unitMaterials = new Material[8];
 
-    public Material GetUnitMaterial(TeamColor teamColor) {
-        return unitMaterials[(int)teamColor];
+    public Material GetUnitMaterial(Team team) {
+        return unitMaterials[(int)team];
     }
 
-    public TeamColor GetTeamColor(int index) {
-        return (TeamColor)index;
+    public Team GetTeamColor(int index) {
+        return (Team)index;
     }
 
     public static int GetNumTeams() {
         return numTeams;
+    }
+
+    public static Team GetFirstPlayer() {
+        return Team.Blue;
     }
 }

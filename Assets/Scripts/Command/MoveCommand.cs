@@ -13,7 +13,6 @@ public class MoveCommand : Command
     }
 
     public override bool ValidateAddCommand(ref List<Command> commands) {
-        Debug.Log("Starting Command Validation");
 
         // If for some reason the unit doesn't exist, do not add command.
         if (hexUnit == null) {
@@ -29,10 +28,12 @@ public class MoveCommand : Command
 
         // If command has already been given to this unit, replace the command with this command
         Command commandToReplace = null;
-        foreach (MoveCommand otherMoveCommand in commands) {
-            if (otherMoveCommand.GetHexUnit() == this.hexUnit) {
-                commandToReplace = otherMoveCommand;
-                break;
+        foreach (Command otherMoveCommand in commands) {
+            if (otherMoveCommand.GetType() == typeof(MoveCommand)) {
+                if (otherMoveCommand.GetHexUnit() == this.hexUnit) {
+                    commandToReplace = otherMoveCommand;
+                    break;
+                }
             }
         }
         if (commandToReplace != null) {

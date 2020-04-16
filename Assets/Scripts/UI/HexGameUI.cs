@@ -11,6 +11,7 @@ public class HexGameUI : MonoBehaviour {
 	HexUnit selectedUnit;
 
 	bool endTurn = false;
+	bool switchPlayer = false;
 
 	List<List<Command>> commandList = new List<List<Command>>();
 
@@ -36,7 +37,7 @@ public class HexGameUI : MonoBehaviour {
 					HexCell targetCell = GetCellUnderCursor();
 					if (targetCell != null) {
 						HexUnit targetUnit = targetCell.Unit;
-						if (targetUnit != null) {
+						if (targetUnit != null ) {
 							GiveAttackCommand(targetUnit);
 						} else {
 							GiveMoveCommand();
@@ -49,6 +50,7 @@ public class HexGameUI : MonoBehaviour {
 			}
 		}
 		if (Input.GetAxis("End Turn") > 0 && endTurn == false) {
+			Debug.Log("Ending Turn");
 			endTurn = true;
 			if (commandList != null && commandList.Count > 0) {
 				foreach (Command command in commandList[0]) {
@@ -58,13 +60,15 @@ public class HexGameUI : MonoBehaviour {
 			}
 		} else if (Input.GetAxis("End Turn") == 0) {
 			endTurn = false;
-		} 
-		if (Input.GetKeyDown(KeyCode.Delete)) {
-			Debug.Log("delete was pressed");
-			if (selectedUnit != null) {
-				Debug.Log("Test Taking Damage");
-				selectedUnit.TakeDamage(200);
-			}
+		}
+		if (Input.GetAxis("Switch Player") > 0 && switchPlayer == false) {
+			switchPlayer = true;
+			selectedUnit = null;
+			grid.ClearPath();
+			TurnManager.SwitchPlayer();
+			grid.ResetVisibility();
+		} else if (Input.GetAxis("Switch Player") == 0) {
+			switchPlayer = false;
 		}
 	}
 
@@ -72,7 +76,9 @@ public class HexGameUI : MonoBehaviour {
 		grid.ClearPath();
 		UpdateCurrentCell();
 		if (currentCell) {
-			selectedUnit = currentCell.Unit;
+			if (currentCell.Unit && currentCell.Unit.GetTeam() == TurnManager.GetCurrentPlayer()) {
+				selectedUnit = currentCell.Unit;
+			}
 		}
 	}
 
