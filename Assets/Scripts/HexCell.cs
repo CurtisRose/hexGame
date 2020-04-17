@@ -312,8 +312,7 @@ public class HexCell : MonoBehaviour {
 			ShaderData.RefreshVisibility(this);
 
 			if (Unit && team == TurnManager.GetCurrentPlayer()) {
-				Debug.Log("TEST");
-				Unit.gameObject.SetActive(true);
+				Unit.MakeVisible();
 			}
 		}
 	}
@@ -327,16 +326,11 @@ public class HexCell : MonoBehaviour {
 
 	public void ResetVisibility () {
 		if (Unit) {
-			Unit.gameObject.SetActive(false);
+			Unit.MakeInvisible();
 		}
 		for (int i = 0; i < visibility.Count;i++) {
 			if (visibility[i] > 0) {
 				visibility[i] = 0;
-			}
-		}
-		for (int i = 0; i < explored.Count; i++) {
-			if (explored[i]) {
-				explored[i] = false;
 			}
 		}
 		ShaderData.RefreshVisibility(this);
