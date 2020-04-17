@@ -238,6 +238,11 @@ public class HexCell : MonoBehaviour {
 		return visibility[(int)team] > 0 && Explorable;
 	}
 
+	// Temporary, until multiplayer is stood up
+	public bool IsVisible() {
+		return visibility[(int)TurnManager.GetCurrentPlayer()] > 0 && Explorable;
+	}
+
 	public bool IsExplored(Team team) {
 		return explored[(int)team] && Explorable;
 	}

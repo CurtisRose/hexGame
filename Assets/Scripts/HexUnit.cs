@@ -151,6 +151,11 @@ public class HexUnit : MonoBehaviour {
 		float t = Time.deltaTime * travelSpeed;
 		for (int i = 1; i < pathToTravel.Count; i++) {
 			currentTravelLocation = pathToTravel[i];
+			if (currentTravelLocation.IsVisible()) {
+				MakeVisible();
+			} else {
+				MakeInvisible();
+			}
 			a = c;
 			b = pathToTravel[i - 1].Position;
 
