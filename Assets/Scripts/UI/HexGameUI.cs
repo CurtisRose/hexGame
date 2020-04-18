@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using System.Collections;
+using UnityEngine.UI;
 
 public class HexGameUI : MonoBehaviour {
 
@@ -18,6 +19,13 @@ public class HexGameUI : MonoBehaviour {
 
 	List<List<Command>> commandList = new List<List<Command>>();
 
+	[SerializeField]
+	Image nextPlayerButtonImage;
+	[SerializeField]
+	Image endTurnButtonImage;
+	[SerializeField]
+	Text whoseTurnText;
+
 	public void SetEditMode (bool toggle) {
 		enabled = !toggle;
 		grid.ShowUI(!toggle);
@@ -28,6 +36,10 @@ public class HexGameUI : MonoBehaviour {
 		else {
 			Shader.DisableKeyword("HEX_MAP_EDIT_MODE");
 		}
+	}
+
+	private void Start() {
+		whoseTurnText.text = TurnManager.GetCurrentPlayer().ToString() + "'s Turn";
 	}
 
 	void Update () {
@@ -41,7 +53,7 @@ public class HexGameUI : MonoBehaviour {
 					if (targetCell != null) {
 						HexUnit targetUnit = targetCell.Unit;
 						if (targetUnit != null ) {
-							GiveAttackCommand(targetUnit);
+							GiveAttackCommand(targetCell);
 						} else {
 							GiveMoveCommand();
 						}
@@ -52,25 +64,31 @@ public class HexGameUI : MonoBehaviour {
 				}
 			}
 		}
-		if (Input.GetAxis("End Turn") > 0 && endTurn == false && !executingCommands) {
-			Debug.Log("Ending Turn");
-			endTurn = true;
+	}
+
+	public void EndTurn() {
+		if (!executingCommands) {
 			if (commandList != null && commandList.Count > 0) {
+				Debug.Log("Executing Orders");
 				executingCommands = true;
 				StartCoroutine(ExecuteCommands());
+				StopPathFinding();
 			}
-		} else if (Input.GetAxis("End Turn") == 0) {
-			endTurn = false;
 		}
-		if (Input.GetAxis("Switch Player") > 0 && switchPlayer == false) {
-			switchPlayer = true;
-			selectedUnit = null;
-			grid.ClearPath();
+	}
+
+	public void Switchplayer() {
+		if (!executingCommands) {
+			StopPathFinding();
 			TurnManager.SwitchPlayer();
 			grid.ResetVisibility();
-		} else if (Input.GetAxis("Switch Player") == 0) {
-			switchPlayer = false;
+			whoseTurnText.text = TurnManager.GetCurrentPlayer().ToString() + "'s Turn";
 		}
+	}
+
+	void StopPathFinding() {
+		selectedUnit = null;
+		grid.ClearPath();
 	}
 
 	private IEnumerator ExecuteCommands() {
@@ -143,6 +161,19 @@ public class HexGameUI : MonoBehaviour {
 		}
 	}
 
+	/// <summary>
+	/// TODO: Create a GiveCommand functionality that allows units to define which command is to be created
+	/// based on the input arguments. For example if a cell does not have a unit on it, a swordsman would know 
+	/// to move to that location. In that same example, though, an archer might want to move OR shoot.
+	/// Not quite sure how to consolidate that idea. But, if a cell has a unit on it, then both archers
+	/// and swordsman would choose to make an attack order. Unless the tile is not a neighbor, then, swordsman
+	/// might make a charge command (this doesn't exist yet, just an idea).
+	/// </summary>
+	void GiveCommand() {
+		CleanOutCommands();
+		//selectedUnit.CreateCommand();
+	}
+
 	void GiveMoveCommand() {
 		CleanOutCommands();
 		if (grid.HasPath) {
@@ -170,10 +201,11 @@ public class HexGameUI : MonoBehaviour {
 				}
 				turnNumber++;
 			}
+			StopPathFinding();
 		}
 	}
 
-	void GiveAttackCommand(HexUnit targetUnit) {
+	void GiveAttackCommand(HexCell target) {
 		CleanOutCommands();
 		List<Command> commands;
 		if (commandList != null && commandList.Count == 0) {
@@ -183,9 +215,11 @@ public class HexGameUI : MonoBehaviour {
 
 			commands = commandList[0];
 		}
-		MeleeAttackCommand attackCommand = new MeleeAttackCommand(selectedUnit, targetUnit);
+		Command attackCommand = selectedUnit.CreateAttackCommand(target);
 		bool goodCommand = attackCommand.ValidateAddCommand(ref commands);
-
+		
+		StopPathFinding();
+		
 		if (goodCommand) {
 			commandList[0] = commands;
 		} else {

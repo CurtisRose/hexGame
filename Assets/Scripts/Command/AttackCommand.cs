@@ -5,20 +5,20 @@ using System.IO;
 
 public class AttackCommand : Command
 {
-    protected HexUnit defendingUnit;
+    protected HexCell target;
  
-    public AttackCommand(HexUnit attackingUnit, HexUnit defendingUnit) {
+    public AttackCommand(HexUnit attackingUnit, HexCell target) {
         this.hexUnit = attackingUnit;
-        this.defendingUnit = defendingUnit;
+        this.target = target;
     }
 
     public override void ExecuteDeploy1() {
-        hexUnit.StartAttack(defendingUnit, this);
+        hexUnit.StartAttack(target, this);
     }
 
     public override bool ValidateAddCommand(ref List<Command> commands) {
         // If for some reason the unit doesn't exist or the defending unit, do not add command.
-        if (hexUnit == null || defendingUnit == null) {
+        if (hexUnit == null || target == null || target.Unit == null) {
             Debug.Log("This Unit doesn't exist (or the defending unit), do not add command.");
             return false;
         }

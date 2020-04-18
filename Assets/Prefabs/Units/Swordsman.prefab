@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4421854725932508}
-  - component: {fileID: 114701888605048992}
+  - component: {fileID: 4503873327818900859}
   m_Layer: 0
-  m_Name: Unit
+  m_Name: Swordsman
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -32,7 +32,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114701888605048992
+--- !u!114 &4503873327818900859
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,7 +41,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1716964107277084}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 434bba114c5e84a0f8fb19ef55b2766a, type: 3}
+  m_Script: {fileID: 11500000, guid: 22dc9372b5611f741bcfc24034063dea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   unitBody: {fileID: 8913196604010929466}
@@ -124,6 +124,10 @@ PrefabInstance:
       propertyPath: m_CullingMode
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 9589342, guid: 5a12c360688f0e149892f627a4b63857, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: c35f36e025e45df42995af6f71d1e2da, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5a12c360688f0e149892f627a4b63857, type: 3}
 --- !u!1 &8913196604010929466 stripped

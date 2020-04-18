@@ -5,19 +5,20 @@ using System.IO;
 
 public class HexUnit : MonoBehaviour {
 
-	const float rotationSpeed = 180f;
-	const float travelSpeed = 1f;
+	protected const float rotationSpeed = 180f;
+	protected const float travelSpeed = 1f;
 
-	public static HexUnit unitPrefab;
+	// Just setting the default HexUnit to Swordsman type.
+	protected UnitType unitType = UnitType.Swordsman;
 
-	private HealthBar healthBar;
+	protected HealthBar healthBar;
 
 	[SerializeField]
-	GameObject unitBody;
+	protected GameObject unitBody;
 
 	public HexGrid Grid { get; set; }
 
-	Animator animator;
+	protected Animator animator;
 
 	public uint Damage { 
 		get {
@@ -25,7 +26,7 @@ public class HexUnit : MonoBehaviour {
 		}
 		set {}
 	}
-	uint damage = 50;
+	protected uint damage = 50;
 
 	public HexCell Location {
 		get {
@@ -44,7 +45,7 @@ public class HexUnit : MonoBehaviour {
 		}
 	}
 
-	HexCell location, currentTravelLocation;
+	protected HexCell location, currentTravelLocation;
 
 	public float Orientation {
 		get {
@@ -55,7 +56,7 @@ public class HexUnit : MonoBehaviour {
 			transform.localRotation = Quaternion.Euler(0f, value, 0f);
 		}
 	}
-	float orientation;
+	protected float orientation;
 
 	public int Speed {
 		get {
@@ -75,7 +76,7 @@ public class HexUnit : MonoBehaviour {
 		}
 	}
 
-	Player player;
+	protected Player player;
 
 	List<HexCell> pathToTravel;
 
@@ -89,7 +90,7 @@ public class HexUnit : MonoBehaviour {
 		transform.localPosition = location.Position;
 	}
 
-	public bool IsValidDestination (HexCell cell) {
+	public virtual bool IsValidDestination (HexCell cell) {
 		return cell.IsExplored(player) && !cell.IsUnderwater /*&& !cell.Unit*/;
 	}
 
@@ -137,7 +138,7 @@ public class HexUnit : MonoBehaviour {
 		return immediatePathToTravel;
 	}
 
-	IEnumerator TravelPath (Command command) {
+	protected IEnumerator TravelPath (Command command) {
 		Vector3 a, b, c = pathToTravel[0].Position;
 		animator.SetBool("isIdle", false);
 		animator.SetBool("isWalking", true);
@@ -212,7 +213,7 @@ public class HexUnit : MonoBehaviour {
 		command.IncrementDeploymentReady();
 	}
 
-	IEnumerator LookAt (Vector3 point) {
+	protected IEnumerator LookAt (Vector3 point) {
 		if (HexMetrics.Wrapping) {
 			float xDistance = point.x - transform.localPosition.x;
 			if (xDistance < -HexMetrics.innerRadius * HexMetrics.wrapSize) {
@@ -246,7 +247,7 @@ public class HexUnit : MonoBehaviour {
 		orientation = transform.localRotation.eulerAngles.y;
 	}
 
-	public int GetMoveCost (
+	public virtual int GetMoveCost (
 		HexCell fromCell, HexCell toCell, HexDirection direction)
 	{
 		if (!IsValidDestination(toCell)) {
@@ -298,29 +299,22 @@ public class HexUnit : MonoBehaviour {
 		}
 	}
 
-	public void StartAttack(HexUnit enemyUnit, Command command) {
-		StopAllCoroutines();
-		StartCoroutine(Attack(enemyUnit, command));
+	public virtual void StartAttack(HexCell target, Command command) {
+		
 	}
 
-	IEnumerator Attack(HexUnit enemyUnit, Command command) {
-		animator.SetBool("isIdle", false);
-		animator.SetBool("isWalking", true);
-		yield return LookAt(enemyUnit.Location.Position);
-		animator.SetBool("isIdle", true);
-		animator.SetBool("isWalking", false);
-		yield return animator.IsInTransition(0);
-
-		enemyUnit.TakeDamage(damage);
-		animator.Play("Attack");
-		command.IncrementDeploymentReady();
+	protected virtual IEnumerator Attack(HexCell target, Command command) {
+		return null;
 	}
 
-	bool Dead = false;
+	public virtual Command CreateAttackCommand(HexCell target) {
+		return new AttackCommand(this, target);
+	}
+
+	protected bool Dead = false;
 	public void Die () {
-		if (location) {
-			Grid.DecreaseVisibility(location, VisionRange, player);
-		}
+		Grid.RemoveUnit(this);
+		Grid.ResetVisibility();
 		location.Unit = null;
 		animator.StopPlayback();
 		animator.Play("Die");
@@ -328,7 +322,7 @@ public class HexUnit : MonoBehaviour {
 		Destroy(gameObject, 3.0f);
 	}
 
-	public void Save (BinaryWriter writer) {
+	public virtual void Save (BinaryWriter writer) {
 		location.coordinates.Save(writer);
 		writer.Write(orientation);
 		writer.Write((int)player);
@@ -338,12 +332,12 @@ public class HexUnit : MonoBehaviour {
 		HexCoordinates coordinates = HexCoordinates.Load(reader);
 		float orientation = reader.ReadSingle();
 		int playerNumber = reader.ReadInt32();
-		grid.AddUnit(
-			Instantiate(unitPrefab), grid.GetCell(coordinates), orientation, (Player)playerNumber
-		);
+		/*grid.AddUnit(
+			Instantiate(HexMapEditor.GetHexUnitPrefab(UnitType.Swordsman)), grid.GetCell(coordinates), orientation, (Player)playerNumber
+		);*/
 	}
 
-	void OnEnable () {
+	protected void OnEnable () {
 		if (location) {
 			transform.localPosition = location.Position;
 			if (currentTravelLocation) {
@@ -361,28 +355,4 @@ public class HexUnit : MonoBehaviour {
 	public void MakeInvisible() {
 		unitBody.gameObject.SetActive(false);
 	}
-
-	//	void OnDrawGizmos () {
-	//		if (pathToTravel == null || pathToTravel.Count == 0) {
-	//			return;
-	//		}
-	//
-	//		Vector3 a, b, c = pathToTravel[0].Position;
-	//
-	//		for (int i = 1; i < pathToTravel.Count; i++) {
-	//			a = c;
-	//			b = pathToTravel[i - 1].Position;
-	//			c = (b + pathToTravel[i].Position) * 0.5f;
-	//			for (float t = 0f; t < 1f; t += 0.1f) {
-	//				Gizmos.DrawSphere(Bezier.GetPoint(a, b, c, t), 2f);
-	//			}
-	//		}
-	//
-	//		a = c;
-	//		b = pathToTravel[pathToTravel.Count - 1].Position;
-	//		c = b;
-	//		for (float t = 0f; t < 1f; t += 0.1f) {
-	//			Gizmos.DrawSphere(Bezier.GetPoint(a, b, c, t), 2f);
-	//		}
-	//	}
 }

@@ -2,6 +2,7 @@
 using UnityEngine.EventSystems;
 using System.IO;
 
+public enum UnitType { Swordsman, Archer };
 public class HexMapEditor : MonoBehaviour {
 
 	public HexGrid hexGrid;
@@ -22,11 +23,18 @@ public class HexMapEditor : MonoBehaviour {
 		Ignore, Yes, No
 	}
 
-	OptionalToggle riverMode, roadMode, walledMode;
+	OptionalToggle riverMode, roadMode;
 
 	bool isDrag;
 	HexDirection dragDirection;
 	HexCell previousCell;
+
+	[SerializeField]
+	HexUnit[] hexUnitPrefab = new HexUnit[2];
+
+	public HexUnit GetHexUnitPrefab(UnitType unitType) {
+		return hexUnitPrefab[(int)unitType];
+	}
 
 	public void SetTerrainTypeIndex (int index) {
 		activeTerrainTypeIndex = index;
@@ -87,12 +95,11 @@ public class HexMapEditor : MonoBehaviour {
 				return;
 			}
 			if (Input.GetKeyDown(KeyCode.U)) {
-				if (Input.GetKey(KeyCode.LeftShift)) {
-					DestroyUnit();
-				}
-				else {
-					CreateUnit();
-				}
+				CreateUnit(UnitType.Swordsman);
+				return;
+			}
+			if (Input.GetKeyDown(KeyCode.I)) {
+				CreateUnit(UnitType.Archer);
 				return;
 			}
 		}
@@ -104,11 +111,11 @@ public class HexMapEditor : MonoBehaviour {
 			hexGrid.GetCell(Camera.main.ScreenPointToRay(Input.mousePosition));
 	}
 
-	void CreateUnit () {
+	void CreateUnit (UnitType unitType) {
 		HexCell cell = GetCellUnderCursor();
 		if (cell && !cell.Unit && cell.Explorable) {
 			hexGrid.AddUnit(
-				Instantiate(HexUnit.unitPrefab), cell, Random.Range(0f, 360f));
+				Instantiate(hexUnitPrefab[(int)unitType]), cell, Random.Range(0f, 360f));
 		}
 
 	}
@@ -184,9 +191,6 @@ public class HexMapEditor : MonoBehaviour {
 			}
 			if (roadMode == OptionalToggle.No) {
 				cell.RemoveRoads();
-			}
-			if (walledMode != OptionalToggle.Ignore) {
-				cell.Walled = walledMode == OptionalToggle.Yes;
 			}
 			if (isDrag) {
 				HexCell otherCell = cell.GetNeighbor(dragDirection.Opposite());
