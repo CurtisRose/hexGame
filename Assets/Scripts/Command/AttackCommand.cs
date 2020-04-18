@@ -2,47 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AttackCommand : Command
+public class AttackCommand : ICommand
 {
-    HexUnit defendingUnit;
-
+    protected HexUnit defendingUnit;
+ 
     public AttackCommand(HexUnit attackingUnit, HexUnit defendingUnit) {
-
         this.hexUnit = attackingUnit;
         this.defendingUnit = defendingUnit;
+        Debug.Log("TEST");
     }
 
     public override void Execute() {
         hexUnit.StartAttack(defendingUnit);
     }
 
-    public override void Undo() {
-        hexUnit.Heal(defendingUnit);
-    }
-
-    public override bool ValidateAddCommand(ref List<Command> commands) {
-
+    public override bool ValidateAddCommand(ref List<ICommand> commands) {
         // If for some reason the unit doesn't exist or the defending unit, do not add command.
         if (hexUnit == null || defendingUnit == null) {
             Debug.Log("This Unit doesn't exist (or the defending unit), do not add command.");
-            return false;
-        }
-
-        bool areNeighbors = false;
-        foreach(HexCell hexCell in hexUnit.Location.GetNeighbors()) {
-            if (hexCell == defendingUnit.Location) {
-                areNeighbors = true;
-                break;
-            }
-        }
-        if (!areNeighbors) {
-            Debug.Log("These units are not next to eachother, do not add command.");
-            return false;
-        }
-
-        // If units are on the same team, do not attack
-        if (hexUnit.GetPlayer() == defendingUnit.GetPlayer()) {
-            Debug.Log("These units are on the same team, do not add command.");
             return false;
         }
 
@@ -53,7 +30,6 @@ public class AttackCommand : Command
             }
         }
 
-        commands.Add(this);
-        return true;
+        return base.ValidateAddCommand(ref commands);
     }
 }
