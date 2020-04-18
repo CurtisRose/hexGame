@@ -62,8 +62,11 @@ public class Swordsman : HexUnit {
 		animator.SetBool("isWalking", false);
 		yield return animator.IsInTransition(0);
 
-		target.Unit.TakeDamage(damage);
+		if (target.Unit != null) {
+			target.Unit.TakeDamage(damage);
+		}
 		animator.Play("Attack");
+
 		command.IncrementDeploymentReady();
 	}
 
