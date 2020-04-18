@@ -33,12 +33,12 @@ public class HexUnit : MonoBehaviour {
 		}
 		set {
 			if (location) {
-				Grid.DecreaseVisibility(location, VisionRange, team);
+				Grid.DecreaseVisibility(location, VisionRange, player);
 				location.Unit = null;
 			}
 			location = value;
 			value.Unit = this;
-			Grid.IncreaseVisibility(location, VisionRange, team);
+			Grid.IncreaseVisibility(location, VisionRange, player);
 			transform.localPosition = value.Position;
 			Grid.MakeChildOfColumn(transform, value.ColumnIndex);
 		}
@@ -75,7 +75,7 @@ public class HexUnit : MonoBehaviour {
 		}
 	}
 
-	Team team;
+	Player player;
 
 	List<HexCell> pathToTravel;
 
@@ -90,7 +90,7 @@ public class HexUnit : MonoBehaviour {
 	}
 
 	public bool IsValidDestination (HexCell cell) {
-		return cell.IsExplored(team) && !cell.IsUnderwater /*&& !cell.Unit*/;
+		return cell.IsExplored(player) && !cell.IsUnderwater /*&& !cell.Unit*/;
 	}
 
 	public void SetPath(List<HexCell> path) {
@@ -145,7 +145,7 @@ public class HexUnit : MonoBehaviour {
 		if (!currentTravelLocation) {
 			currentTravelLocation = pathToTravel[0];
 		}
-		Grid.DecreaseVisibility(currentTravelLocation, VisionRange, team);
+		Grid.DecreaseVisibility(currentTravelLocation, VisionRange, player);
 		int currentColumn = currentTravelLocation.ColumnIndex;
 
 		float t = Time.deltaTime * travelSpeed;
@@ -174,7 +174,7 @@ public class HexUnit : MonoBehaviour {
 			}
 
 			c = (b + currentTravelLocation.Position) * 0.5f;
-			Grid.IncreaseVisibility(pathToTravel[i], VisionRange, team);
+			Grid.IncreaseVisibility(pathToTravel[i], VisionRange, player);
 
 			for (; t < 1f; t += Time.deltaTime * travelSpeed) {
 				transform.localPosition = Bezier.GetPoint(a, b, c, t);
@@ -183,7 +183,7 @@ public class HexUnit : MonoBehaviour {
 				transform.localRotation = Quaternion.LookRotation(d);
 				yield return null;
 			}
-			Grid.DecreaseVisibility(pathToTravel[i], VisionRange, team);
+			Grid.DecreaseVisibility(pathToTravel[i], VisionRange, player);
 			t -= 1f;
 		}
 		currentTravelLocation = null;
@@ -191,7 +191,7 @@ public class HexUnit : MonoBehaviour {
 		a = c;
 		b = location.Position;
 		c = b;
-		Grid.IncreaseVisibility(location, VisionRange, team);
+		Grid.IncreaseVisibility(location, VisionRange, player);
 		for (; t < 1f; t += Time.deltaTime * travelSpeed) {
 			transform.localPosition = Bezier.GetPoint(a, b, c, t);
 			Vector3 d = Bezier.GetDerivative(a, b, c, t);
@@ -284,16 +284,15 @@ public class HexUnit : MonoBehaviour {
 		healthBar.Heal(healAmount);
 	}
 
-	public Team GetTeam() {
-		return team;
+	public Player GetPlayer() {
+		return player;
 	}
 
-	public void SetTeam(Team team) {
-		this.team = team;
+	public void SetPlayer(Player player) {
+		this.player = player;
 		Renderer[] skins = GetComponentsInChildren<Renderer>();
-		TeamManager teamManager = Grid.GetComponent<TeamManager>();
 		foreach (Renderer skin in skins) {
-			skin.material = teamManager.GetUnitMaterial(team);
+			skin.material = TurnManager.GetInstance().GetUnitMaterial(player);
 		}
 	}
 
@@ -317,7 +316,7 @@ public class HexUnit : MonoBehaviour {
 
 	public void Die () {
 		if (location) {
-			Grid.DecreaseVisibility(location, VisionRange, team);
+			Grid.DecreaseVisibility(location, VisionRange, player);
 		}
 		location.Unit = null;
 		animator.StopPlayback();
@@ -328,15 +327,15 @@ public class HexUnit : MonoBehaviour {
 	public void Save (BinaryWriter writer) {
 		location.coordinates.Save(writer);
 		writer.Write(orientation);
-		writer.Write((int)team);
+		writer.Write((int)player);
 	}
 
 	public static void Load (BinaryReader reader, HexGrid grid) {
 		HexCoordinates coordinates = HexCoordinates.Load(reader);
 		float orientation = reader.ReadSingle();
-		int teamNumber = reader.ReadInt32();
+		int playerNumber = reader.ReadInt32();
 		grid.AddUnit(
-			Instantiate(unitPrefab), grid.GetCell(coordinates), orientation, (Team)teamNumber
+			Instantiate(unitPrefab), grid.GetCell(coordinates), orientation, (Player)playerNumber
 		);
 	}
 
@@ -344,8 +343,8 @@ public class HexUnit : MonoBehaviour {
 		if (location) {
 			transform.localPosition = location.Position;
 			if (currentTravelLocation) {
-				Grid.IncreaseVisibility(location, VisionRange, team);
-				Grid.DecreaseVisibility(currentTravelLocation, VisionRange, team);
+				Grid.IncreaseVisibility(location, VisionRange, player);
+				Grid.DecreaseVisibility(currentTravelLocation, VisionRange, player);
 				currentTravelLocation = null;
 			}
 		}

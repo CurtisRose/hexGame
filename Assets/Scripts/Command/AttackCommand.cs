@@ -41,7 +41,7 @@ public class AttackCommand : Command
         }
 
         // If units are on the same team, do not attack
-        if (hexUnit.GetTeam() == defendingUnit.GetTeam()) {
+        if (hexUnit.GetPlayer() == defendingUnit.GetPlayer()) {
             Debug.Log("These units are on the same team, do not add command.");
             return false;
         }

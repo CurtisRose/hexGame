@@ -43,8 +43,6 @@ public class HexGrid : MonoBehaviour {
 
 	HexCellShaderData cellShaderData;
 
-	TeamManager teamManager;
-
 	void Awake () {
 		HexMetrics.noiseSource = noiseSource;
 		HexMetrics.InitializeHashGrid(seed);
@@ -52,7 +50,6 @@ public class HexGrid : MonoBehaviour {
 		cellShaderData = gameObject.AddComponent<HexCellShaderData>();
 		cellShaderData.Grid = this;
 		CreateMap(cellCountX, cellCountZ, wrapping);
-		teamManager = GetComponent<TeamManager>();
 	}
 
 	public List<HexUnit> GetUnits() {
@@ -64,17 +61,17 @@ public class HexGrid : MonoBehaviour {
 		units.Add(unit);
 		unit.Grid = this;
 		// SetTeam needs to be done before setting the Location for fog of war visibility reasons...
-		unit.SetTeam(TurnManager.GetCurrentPlayer());
+		unit.SetPlayer(TurnManager.GetCurrentPlayer());
 		unit.Location = location;
 		unit.Orientation = orientation;
 	}
 
 	// Only for use with loading and saving, use the one above for setting teams properly
-	public void AddUnit(HexUnit unit, HexCell location, float orientation, Team teamNumber) {
+	public void AddUnit(HexUnit unit, HexCell location, float orientation, Player playerNumber) {
 		units.Add(unit);
 		unit.Grid = this;
 		// SetTeam needs to be done before setting the Location for fog of war visibility reasons...
-		unit.SetTeam(teamNumber);
+		unit.SetPlayer(playerNumber);
 		unit.Location = location;
 		unit.Orientation = orientation;
 	}
@@ -438,18 +435,18 @@ public class HexGrid : MonoBehaviour {
 		return false;
 	}
 
-	public void IncreaseVisibility (HexCell fromCell, int range, Team team) {
+	public void IncreaseVisibility (HexCell fromCell, int range, Player player) {
 		List<HexCell> cells = GetVisibleCells(fromCell, range);
 		for (int i = 0; i < cells.Count; i++) {
-			cells[i].IncreaseVisibility(team);
+			cells[i].IncreaseVisibility(player);
 		}
 		ListPool<HexCell>.Add(cells);
 	}
 
-	public void DecreaseVisibility (HexCell fromCell, int range, Team team) {
+	public void DecreaseVisibility (HexCell fromCell, int range, Player player) {
 		List<HexCell> cells = GetVisibleCells(fromCell, range);
 		for (int i = 0; i < cells.Count; i++) {
-			cells[i].DecreaseVisibility(team);
+			cells[i].DecreaseVisibility(player);
 		}
 		ListPool<HexCell>.Add(cells);
 	}
@@ -460,7 +457,7 @@ public class HexGrid : MonoBehaviour {
 		}
 		for (int i = 0; i < units.Count; i++) {
 			HexUnit unit = units[i];
-			IncreaseVisibility(unit.Location, unit.VisionRange, unit.GetTeam());
+			IncreaseVisibility(unit.Location, unit.VisionRange, unit.GetPlayer());
 		}
 	}
 

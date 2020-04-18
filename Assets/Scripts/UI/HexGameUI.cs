@@ -76,7 +76,7 @@ public class HexGameUI : MonoBehaviour {
 		grid.ClearPath();
 		UpdateCurrentCell();
 		if (currentCell) {
-			if (currentCell.Unit && currentCell.Unit.GetTeam() == TurnManager.GetCurrentPlayer()) {
+			if (currentCell.Unit && currentCell.Unit.GetPlayer() == TurnManager.GetCurrentPlayer()) {
 				selectedUnit = currentCell.Unit;
 			}
 		}

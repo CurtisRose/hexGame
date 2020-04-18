@@ -234,8 +234,8 @@ public class HexCell : MonoBehaviour {
 		}
 	}
 
-	public bool IsVisible(Team team) {
-		return visibility[(int)team] > 0 && Explorable;
+	public bool IsVisible(Player player) {
+		return visibility[(int)player] > 0 && Explorable;
 	}
 
 	// Temporary, until multiplayer is stood up
@@ -243,8 +243,8 @@ public class HexCell : MonoBehaviour {
 		return visibility[(int)TurnManager.GetCurrentPlayer()] > 0 && Explorable;
 	}
 
-	public bool IsExplored(Team team) {
-		return explored[(int)team] && Explorable;
+	public bool IsExplored(Player player) {
+		return explored[(int)player] && Explorable;
 	}
 
 	public bool Explorable { get; set; }
@@ -302,29 +302,29 @@ public class HexCell : MonoBehaviour {
 	bool[] roads;
 
 	private void Awake() {
-		while (visibility.Count < TeamManager.GetNumTeams()) {
+		while (visibility.Count < TurnManager.GetNumTeams()) {
 			visibility.Add(0);
 		}
-		while (explored.Count < TeamManager.GetNumTeams()) {
+		while (explored.Count < TurnManager.GetNumTeams()) {
 			explored.Add(false);
 		}
 	}
 
-	public void IncreaseVisibility (Team team) {
-		visibility[(int)team] += 1;
-		if (visibility[(int)team] == 1) {
-			explored[(int)team] = true;
+	public void IncreaseVisibility (Player player) {
+		visibility[(int)player] += 1;
+		if (visibility[(int)player] == 1) {
+			explored[(int)player] = true;
 			ShaderData.RefreshVisibility(this);
 
-			if (Unit && team == TurnManager.GetCurrentPlayer()) {
+			if (Unit && player == TurnManager.GetCurrentPlayer()) {
 				Unit.MakeVisible();
 			}
 		}
 	}
 
-	public void DecreaseVisibility (Team team) {
-		visibility[(int)team] -= 1;
-		if (visibility[(int)team] == 0) {
+	public void DecreaseVisibility (Player player) {
+		visibility[(int)player] -= 1;
+		if (visibility[(int)player] == 0) {
 			ShaderData.RefreshVisibility(this);
 		}
 	}
@@ -548,7 +548,7 @@ public class HexCell : MonoBehaviour {
 			}
 		}
 		writer.Write((byte)roadFlags);
-		for (int i = 0; i < TeamManager.GetNumTeams(); i++) {
+		for (int i = 0; i < TurnManager.GetNumTeams(); i++) {
 			writer.Write(explored[i]);
 		}
 	}
@@ -590,7 +590,7 @@ public class HexCell : MonoBehaviour {
 		for (int i = 0; i < roads.Length; i++) {
 			roads[i] = (roadFlags & (1 << i)) != 0;
 		}
-		for (int i = 0; i < TeamManager.GetNumTeams(); i++) {
+		for (int i = 0; i < TurnManager.GetNumTeams(); i++) {
 			explored[i] = header >= 3 ? reader.ReadBoolean() : false;
 		}
 		ShaderData.RefreshVisibility(this);

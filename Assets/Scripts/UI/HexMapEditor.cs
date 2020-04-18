@@ -11,16 +11,12 @@ public class HexMapEditor : MonoBehaviour {
 	int activeElevation;
 	int activeWaterLevel;
 
-	int activeUrbanLevel, activeFarmLevel, activePlantLevel, activeSpecialIndex;
-
 	int activeTerrainTypeIndex = -1;
 
 	int brushSize;
 
 	bool applyElevation = false;
 	bool applyWaterLevel = false;
-
-	bool applyUrbanLevel, applyFarmLevel, applyPlantLevel, applySpecialIndex;
 
 	enum OptionalToggle {
 		Ignore, Yes, No
@@ -81,6 +77,7 @@ public class HexMapEditor : MonoBehaviour {
 		terrainMaterial.DisableKeyword("GRID_ON");
 		Shader.EnableKeyword("HEX_MAP_EDIT_MODE");
 		SetEditMode(true);
+		TurnManager.LoadMaterials();
 	}
 
 	void Update () {
@@ -109,7 +106,7 @@ public class HexMapEditor : MonoBehaviour {
 
 	void CreateUnit () {
 		HexCell cell = GetCellUnderCursor();
-		if (cell && !cell.Unit) {
+		if (cell && !cell.Unit && cell.Explorable) {
 			hexGrid.AddUnit(
 				Instantiate(HexUnit.unitPrefab), cell, Random.Range(0f, 360f));
 		}
@@ -181,18 +178,6 @@ public class HexMapEditor : MonoBehaviour {
 			}
 			if (applyWaterLevel) {
 				cell.WaterLevel = activeWaterLevel;
-			}
-			if (applySpecialIndex) {
-				cell.SpecialIndex = activeSpecialIndex;
-			}
-			if (applyUrbanLevel) {
-				cell.UrbanLevel = activeUrbanLevel;
-			}
-			if (applyFarmLevel) {
-				cell.FarmLevel = activeFarmLevel;
-			}
-			if (applyPlantLevel) {
-				cell.PlantLevel = activePlantLevel;
 			}
 			if (riverMode == OptionalToggle.No) {
 				cell.RemoveRiver();
