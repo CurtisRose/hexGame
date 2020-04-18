@@ -9,7 +9,6 @@ public class AttackCommand : Command
     public AttackCommand(HexUnit attackingUnit, HexUnit defendingUnit) {
         this.hexUnit = attackingUnit;
         this.defendingUnit = defendingUnit;
-        Debug.Log("TEST");
     }
 
     public override void Execute() {
