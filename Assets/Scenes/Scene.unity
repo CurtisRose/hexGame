@@ -8353,7 +8353,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1571186512}
   - component: {fileID: 1571186511}
-  - component: {fileID: 1571186513}
   m_Layer: 0
   m_Name: Hex Grid
   m_TagString: Untagged
@@ -8398,27 +8397,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1571186513
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1571186510}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 411a88bd46353e7429853e68b3cfb83b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  unitMaterials:
-  - {fileID: 2100000, guid: ac0167fe82fe42a42b11281607cd34cb, type: 2}
-  - {fileID: 2100000, guid: 5598f985cb571cc47b974635eb68de90, type: 2}
-  - {fileID: 2100000, guid: 8ad4b498c159f1f4e816b15e9f20ca0f, type: 2}
-  - {fileID: 2100000, guid: 214260c25292883449143c9b73ca25e8, type: 2}
-  - {fileID: 2100000, guid: 4d06de1f461902640a01265f9bf0d022, type: 2}
-  - {fileID: 2100000, guid: 463972eb5569c5d43ab431987cf44cf5, type: 2}
-  - {fileID: 2100000, guid: 48d5c3a0c4e95434daf00abed8198ce7, type: 2}
-  - {fileID: 2100000, guid: f6e319218a807484ea9d2d8a972ba723, type: 2}
 --- !u!1 &1615944684
 GameObject:
   m_ObjectHideFlags: 0
