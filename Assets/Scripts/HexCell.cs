@@ -360,6 +360,15 @@ public class HexCell : MonoBehaviour {
 		return neighbors;
 	}
 
+	public bool IsNeighbor(HexCell other) {
+		foreach (HexCell hexCell in GetNeighbors()) {
+			if (other == hexCell) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public HexEdgeType GetEdgeType (HexCell otherCell) {
 		return HexMetrics.GetEdgeType(
 			elevation, otherCell.elevation
