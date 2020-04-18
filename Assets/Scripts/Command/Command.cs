@@ -6,10 +6,11 @@ public abstract class Command
 {
     protected HexUnit hexUnit;
     public abstract void Execute();
-    public abstract void Undo();
-    public abstract bool ValidateAddCommand(ref List<Command> commands);
-
-    public HexUnit GetHexUnit() {
+    public virtual bool ValidateAddCommand(ref List<Command> commands) {
+        commands.Add(this);
+        return true;
+    }
+    public virtual HexUnit GetHexUnit() {
         return hexUnit;
     }
 }

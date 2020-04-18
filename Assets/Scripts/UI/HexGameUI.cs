@@ -146,7 +146,7 @@ public class HexGameUI : MonoBehaviour {
 
 			commands = commandList[0];
 		}
-		AttackCommand attackCommand = new AttackCommand(selectedUnit, targetUnit);
+		MeleeAttackCommand attackCommand = new MeleeAttackCommand(selectedUnit, targetUnit);
 		bool goodCommand = attackCommand.ValidateAddCommand(ref commands);
 
 		if (goodCommand) {
