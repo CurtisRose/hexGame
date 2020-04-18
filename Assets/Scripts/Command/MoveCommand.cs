@@ -10,9 +10,9 @@ public class MoveCommand : Command {
         this.path = path;
     }
 
-    public override void Execute() {
+    public override void ExecuteDeploy2() {
         hexUnit.SetPath(path);
-        hexUnit.FollowPath();
+        hexUnit.FollowPath(this);
     }
 
     public override bool ValidateAddCommand(ref List<Command> commands) {
@@ -29,10 +29,12 @@ public class MoveCommand : Command {
 
         // If the location you are moving to will be occupied next turn, remove old command, add this one
         bool conflictingCommand = false;
-        foreach (MoveCommand otherMoveCommand in commands) {
-            if (GetTargetCell() == otherMoveCommand.GetTargetCell()) {
-                conflictingCommand = true;
-                break;
+        foreach (Command otherCommand in commands) {
+            if (otherCommand is MoveCommand) {
+                if (GetTargetCell() == ((MoveCommand)otherCommand).GetTargetCell()) {
+                    conflictingCommand = true;
+                    break;
+                }
             }
         }
         if (conflictingCommand) {

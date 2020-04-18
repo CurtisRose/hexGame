@@ -22,7 +22,6 @@ public class TurnManager
         if ((int)currentPlayer >= TurnManager.GetNumTeams()) {
             currentPlayer = TurnManager.GetFirstPlayer();
         }
-        Debug.Log("Switching to team " + currentPlayer.ToString());
     }
 
     public static Player GetCurrentPlayer() {
@@ -48,9 +47,7 @@ public class TurnManager
     public static void LoadMaterials() {
         for (int i = 0; i < numTeams; i++) {
             Player team = (Player)i;
-            //Debug.Log(team.ToString().ToLower());
             unitMaterials[i] = Resources.Load("TeamColors/WK_Standard_Units_"+team.ToString().ToLower(), typeof(Material)) as Material;
-            //Debug.Log(unitMaterials[i].name.ToString());
         }
     }
 }

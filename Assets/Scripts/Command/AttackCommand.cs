@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
 
 public class AttackCommand : Command
 {
@@ -9,11 +10,10 @@ public class AttackCommand : Command
     public AttackCommand(HexUnit attackingUnit, HexUnit defendingUnit) {
         this.hexUnit = attackingUnit;
         this.defendingUnit = defendingUnit;
-        Debug.Log("TEST");
     }
 
-    public override void Execute() {
-        hexUnit.StartAttack(defendingUnit);
+    public override void ExecuteDeploy1() {
+        hexUnit.StartAttack(defendingUnit, this);
     }
 
     public override bool ValidateAddCommand(ref List<Command> commands) {

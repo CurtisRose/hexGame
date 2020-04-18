@@ -97,13 +97,15 @@ public class HexUnit : MonoBehaviour {
 		pathToTravel = path;
 	}
 
-	public void FollowPath() {
-		if (pathToTravel.Count > 0) {
+	public void FollowPath(Command command) {
+		if (!Dead && pathToTravel.Count > 0) {
 			location.Unit = null;
 			location = pathToTravel[pathToTravel.Count - 1];
 			location.Unit = this;
 			StopAllCoroutines();
-			StartCoroutine(TravelPath());
+			StartCoroutine(TravelPath(command));
+		} else {
+			command.IncrementDeploymentReady();
 		}
 	}
 
@@ -135,7 +137,7 @@ public class HexUnit : MonoBehaviour {
 		return immediatePathToTravel;
 	}
 
-	IEnumerator TravelPath () {
+	IEnumerator TravelPath (Command command) {
 		Vector3 a, b, c = pathToTravel[0].Position;
 		animator.SetBool("isIdle", false);
 		animator.SetBool("isWalking", true);
@@ -207,6 +209,7 @@ public class HexUnit : MonoBehaviour {
 
 		animator.SetBool("isIdle", true);
 		animator.SetBool("isRunning", false);
+		command.IncrementDeploymentReady();
 	}
 
 	IEnumerator LookAt (Vector3 point) {
@@ -272,7 +275,6 @@ public class HexUnit : MonoBehaviour {
 	public void TakeDamage(uint damageAmount) {
 		animator.Play("TakeDamage");
 		healthBar.Damage(damageAmount);
-		Debug.Log("Taking Damage: current health " + Health);
 	}
 
 	public void Heal(HexUnit enemyUnit) {
@@ -296,12 +298,12 @@ public class HexUnit : MonoBehaviour {
 		}
 	}
 
-	public void StartAttack(HexUnit enemyUnit) {
+	public void StartAttack(HexUnit enemyUnit, Command command) {
 		StopAllCoroutines();
-		StartCoroutine(Attack(enemyUnit));
+		StartCoroutine(Attack(enemyUnit, command));
 	}
 
-	IEnumerator Attack(HexUnit enemyUnit) {
+	IEnumerator Attack(HexUnit enemyUnit, Command command) {
 		animator.SetBool("isIdle", false);
 		animator.SetBool("isWalking", true);
 		yield return LookAt(enemyUnit.Location.Position);
@@ -311,9 +313,10 @@ public class HexUnit : MonoBehaviour {
 
 		enemyUnit.TakeDamage(damage);
 		animator.Play("Attack");
+		command.IncrementDeploymentReady();
 	}
 
-
+	bool Dead = false;
 	public void Die () {
 		if (location) {
 			Grid.DecreaseVisibility(location, VisionRange, player);
@@ -321,6 +324,7 @@ public class HexUnit : MonoBehaviour {
 		location.Unit = null;
 		animator.StopPlayback();
 		animator.Play("Die");
+		Dead = true;
 		Destroy(gameObject, 3.0f);
 	}
 

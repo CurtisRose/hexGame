@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
+using System.Collections;
 
 public class HexGameUI : MonoBehaviour {
 
@@ -12,6 +13,8 @@ public class HexGameUI : MonoBehaviour {
 
 	bool endTurn = false;
 	bool switchPlayer = false;
+	[SerializeField]
+	bool executingCommands = false;
 
 	List<List<Command>> commandList = new List<List<Command>>();
 
@@ -49,14 +52,12 @@ public class HexGameUI : MonoBehaviour {
 				}
 			}
 		}
-		if (Input.GetAxis("End Turn") > 0 && endTurn == false) {
+		if (Input.GetAxis("End Turn") > 0 && endTurn == false && !executingCommands) {
 			Debug.Log("Ending Turn");
 			endTurn = true;
 			if (commandList != null && commandList.Count > 0) {
-				foreach (Command command in commandList[0]) {
-					command.Execute();
-				}
-				commandList.RemoveAt(0);
+				executingCommands = true;
+				StartCoroutine(ExecuteCommands());
 			}
 		} else if (Input.GetAxis("End Turn") == 0) {
 			endTurn = false;
@@ -70,6 +71,43 @@ public class HexGameUI : MonoBehaviour {
 		} else if (Input.GetAxis("Switch Player") == 0) {
 			switchPlayer = false;
 		}
+	}
+
+	private IEnumerator ExecuteCommands() {
+		// Executing Deployment 1 Orders
+		foreach (Command command in commandList[0]) {
+			command.ExecuteDeploy1();
+		}
+		while(Command.GetDeploymentReady() != commandList[0].Count) {
+			yield return null;
+		}
+		Command.ResetDeploymentReady();
+
+
+		// Executing Deployment 2 Orders
+		yield return new WaitForSeconds(0.5f);
+		foreach (Command command in commandList[0]) {
+			command.ExecuteDeploy2();
+		}
+		while (Command.GetDeploymentReady() != commandList[0].Count) {
+			yield return null;
+		}
+		Command.ResetDeploymentReady();
+
+		// Executing Deployment 3 Orders
+		yield return new WaitForSeconds(0.5f);
+		foreach (Command command in commandList[0]) {
+			command.ExecuteDeploy3();
+		}
+		while (Command.GetDeploymentReady() != commandList[0].Count) {
+			yield return null;
+		}
+		Command.ResetDeploymentReady();
+
+		// Deleting commands list
+		commandList.RemoveAt(0);
+		// Letting the GUI know the this commands list has finished executing
+		executingCommands = false;
 	}
 
 	void DoSelection () {
@@ -136,7 +174,6 @@ public class HexGameUI : MonoBehaviour {
 	}
 
 	void GiveAttackCommand(HexUnit targetUnit) {
-		Debug.Log("Attempting to Give Attack Command");
 		CleanOutCommands();
 		List<Command> commands;
 		if (commandList != null && commandList.Count == 0) {
