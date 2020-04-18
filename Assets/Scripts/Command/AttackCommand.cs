@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AttackCommand : ICommand
+public class AttackCommand : Command
 {
     protected HexUnit defendingUnit;
  
@@ -16,7 +16,7 @@ public class AttackCommand : ICommand
         hexUnit.StartAttack(defendingUnit);
     }
 
-    public override bool ValidateAddCommand(ref List<ICommand> commands) {
+    public override bool ValidateAddCommand(ref List<Command> commands) {
         // If for some reason the unit doesn't exist or the defending unit, do not add command.
         if (hexUnit == null || defendingUnit == null) {
             Debug.Log("This Unit doesn't exist (or the defending unit), do not add command.");

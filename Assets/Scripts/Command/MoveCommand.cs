@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MoveCommand : ICommand {
+public class MoveCommand : Command {
     private List<HexCell> path;
 
     public MoveCommand(HexUnit hexUnit, List<HexCell> path) {
@@ -15,7 +15,7 @@ public class MoveCommand : ICommand {
         hexUnit.FollowPath();
     }
 
-    public override bool ValidateAddCommand(ref List<ICommand> commands) {
+    public override bool ValidateAddCommand(ref List<Command> commands) {
 
         // If for some reason the unit doesn't exist, do not add command.
         if (hexUnit == null) {

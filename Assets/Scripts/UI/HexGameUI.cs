@@ -13,7 +13,7 @@ public class HexGameUI : MonoBehaviour {
 	bool endTurn = false;
 	bool switchPlayer = false;
 
-	List<List<ICommand>> commandList = new List<List<ICommand>>();
+	List<List<Command>> commandList = new List<List<Command>>();
 
 	public void SetEditMode (bool toggle) {
 		enabled = !toggle;
@@ -53,7 +53,7 @@ public class HexGameUI : MonoBehaviour {
 			Debug.Log("Ending Turn");
 			endTurn = true;
 			if (commandList != null && commandList.Count > 0) {
-				foreach (ICommand command in commandList[0]) {
+				foreach (Command command in commandList[0]) {
 					command.Execute();
 				}
 				commandList.RemoveAt(0);
@@ -95,8 +95,8 @@ public class HexGameUI : MonoBehaviour {
 
 	void CleanOutCommands() {
 		// Shitty Code, but, if the unit attributed to a command has died, remove all of it's commands.
-		List<ICommand> commandsToReplace = new List<ICommand>();
-		foreach (List<ICommand> commands in commandList) {
+		List<Command> commandsToReplace = new List<Command>();
+		foreach (List<Command> commands in commandList) {
 			for (int i = 0; i < commands.Count; i++) {
 				if (commands[i].GetHexUnit() == null) {
 					commands.RemoveAt(i);
@@ -115,10 +115,10 @@ public class HexGameUI : MonoBehaviour {
 			while (fullPath.Count > 1) {
 				List<HexCell> partialPath = selectedUnit.PartitionPath(ref fullPath);
 				MoveCommand moveCommand = new MoveCommand(selectedUnit, partialPath);
-				List<ICommand> commands;
+				List<Command> commands;
 				if (commandList != null && commandList.Count < (turnNumber+1)) {
-					commandList.Add(new List<ICommand>());
-					commands = new List<ICommand>();
+					commandList.Add(new List<Command>());
+					commands = new List<Command>();
 				} else {
 					commands = commandList[turnNumber];
 				}
@@ -138,10 +138,10 @@ public class HexGameUI : MonoBehaviour {
 	void GiveAttackCommand(HexUnit targetUnit) {
 		Debug.Log("Attempting to Give Attack Command");
 		CleanOutCommands();
-		List<ICommand> commands;
+		List<Command> commands;
 		if (commandList != null && commandList.Count == 0) {
-			commandList.Add(new List<ICommand>());
-			commands = new List<ICommand>();
+			commandList.Add(new List<Command>());
+			commands = new List<Command>();
 		} else {
 
 			commands = commandList[0];
