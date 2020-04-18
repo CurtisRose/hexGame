@@ -8,7 +8,7 @@ public class HexUnit : MonoBehaviour {
 	protected const float rotationSpeed = 180f;
 	protected const float travelSpeed = 1f;
 
-	public static HexUnit unitPrefab;
+	protected UnitType unitType = UnitType.Swordsman;
 
 	protected HealthBar healthBar;
 
@@ -18,6 +18,8 @@ public class HexUnit : MonoBehaviour {
 	public HexGrid Grid { get; set; }
 
 	protected Animator animator;
+
+	public HexUnit unitPrefab;
 
 	public uint Damage { 
 		get {
@@ -331,9 +333,9 @@ public class HexUnit : MonoBehaviour {
 		HexCoordinates coordinates = HexCoordinates.Load(reader);
 		float orientation = reader.ReadSingle();
 		int playerNumber = reader.ReadInt32();
-		grid.AddUnit(
-			Instantiate(unitPrefab), grid.GetCell(coordinates), orientation, (Player)playerNumber
-		);
+		/*grid.AddUnit(
+			Instantiate(HexMapEditor.GetHexUnitPrefab(UnitType.Swordsman)), grid.GetCell(coordinates), orientation, (Player)playerNumber
+		);*/
 	}
 
 	protected void OnEnable () {

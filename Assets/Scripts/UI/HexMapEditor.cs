@@ -32,6 +32,10 @@ public class HexMapEditor : MonoBehaviour {
 	[SerializeField]
 	HexUnit[] hexUnitPrefab = new HexUnit[2];
 
+	public HexUnit GetHexUnitPrefab(UnitType unitType) {
+		return hexUnitPrefab[(int)unitType];
+	}
+
 	public void SetTerrainTypeIndex (int index) {
 		activeTerrainTypeIndex = index;
 	}
