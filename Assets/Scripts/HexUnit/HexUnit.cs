@@ -4,13 +4,11 @@ using System.Collections.Generic;
 using System.IO;
 
 public class HexUnit : MonoBehaviour {
-
 	protected const float rotationSpeed = 180f;
 	protected const float travelSpeed = 1f;
 
 	// Just setting the default HexUnit to Swordsman type.
 	protected UnitType unitType = UnitType.Swordsman;
-
 	protected HealthBar healthBar;
 
 	[SerializeField]
