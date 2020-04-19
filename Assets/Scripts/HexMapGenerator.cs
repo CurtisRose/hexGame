@@ -136,6 +136,7 @@ public class HexMapGenerator : MonoBehaviour {
 	};
 
 	public void GenerateMap (int x, int z, bool wrapping) {
+		Debug.Log("TEST HexMapGenerator.GenerateMap()");
 		Random.State originalRandomState = Random.state;
 		if (!useFixedSeed) {
 			seed = Random.Range(0, int.MaxValue);

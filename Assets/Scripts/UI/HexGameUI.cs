@@ -134,6 +134,8 @@ public class HexGameUI : MonoBehaviour {
 		if (currentCell) {
 			if (currentCell.Unit && currentCell.Unit.GetPlayer() == TurnManager.GetCurrentPlayer()) {
 				selectedUnit = currentCell.Unit;
+			} else {
+				StopPathFinding();
 			}
 		}
 	}

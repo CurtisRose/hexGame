@@ -20,6 +20,8 @@ public class HexMapCamera : MonoBehaviour {
 
 	static HexMapCamera instance;
 
+	bool allowUserInput = true;
+
 	public static bool Locked {
 		set {
 			instance.enabled = !value;
@@ -41,20 +43,22 @@ public class HexMapCamera : MonoBehaviour {
 	}
 
 	void Update () {
-		float zoomDelta = Input.GetAxis("Mouse ScrollWheel");
-		if (zoomDelta != 0f) {
-			AdjustZoom(zoomDelta);
-		}
+		if (allowUserInput) {
+			float zoomDelta = Input.GetAxis("Mouse ScrollWheel");
+			if (zoomDelta != 0f) {
+				AdjustZoom(zoomDelta);
+			}
 
-		float rotationDelta = Input.GetAxis("Rotation");
-		if (rotationDelta != 0f) {
-			AdjustRotation(rotationDelta);
-		}
+			float rotationDelta = Input.GetAxis("Rotation");
+			if (rotationDelta != 0f) {
+				AdjustRotation(rotationDelta);
+			}
 
-		float xDelta = Input.GetAxis("Horizontal");
-		float zDelta = Input.GetAxis("Vertical");
-		if (xDelta != 0f || zDelta != 0f) {
-			AdjustPosition(xDelta, zDelta);
+			float xDelta = Input.GetAxis("Horizontal");
+			float zDelta = Input.GetAxis("Vertical");
+			if (xDelta != 0f || zDelta != 0f) {
+				AdjustPosition(xDelta, zDelta);
+			}
 		}
 	}
 
@@ -68,7 +72,7 @@ public class HexMapCamera : MonoBehaviour {
 		swivel.localRotation = Quaternion.Euler(angle, 0f, 0f);
 	}
 
-	void AdjustRotation (float delta) {
+	public void AdjustRotation (float delta) {
 		rotationAngle += delta * rotationSpeed * Time.deltaTime;
 		if (rotationAngle < 0f) {
 			rotationAngle += 360f;
@@ -118,5 +122,17 @@ public class HexMapCamera : MonoBehaviour {
 
 		grid.CenterMap(position.x);
 		return position;
+	}
+
+	public void SetZoom(float setZoom) {
+		zoom = setZoom;
+	}
+
+	public void DisableUserInput() {
+		allowUserInput = false;
+	}
+
+	public void EnableUserInput() {
+		allowUserInput = true;
 	}
 }
