@@ -2,8 +2,9 @@
 using UnityEngine.UI;
 using System.IO;
 using System.Collections.Generic;
+using UnityEngine.Networking;
 
-public class HexGrid : MonoBehaviour {
+public class HexGrid : NetworkBehaviour {
 
 	public int cellCountX = 20, cellCountZ = 15;
 
@@ -65,7 +66,7 @@ public class HexGrid : MonoBehaviour {
 	}
 
 	// Only for use with loading and saving, use the one above for setting teams properly
-	public void AddUnit(HexUnit unit, HexCell location, float orientation, Player playerNumber) {
+	public void AddUnit(HexUnit unit, HexCell location, float orientation, TeamColor playerNumber) {
 		units.Add(unit);
 		unit.Grid = this;
 		// SetTeam needs to be done before setting the Location for fog of war visibility reasons...
@@ -431,7 +432,7 @@ public class HexGrid : MonoBehaviour {
 		return false;
 	}
 
-	public void IncreaseVisibility (HexCell fromCell, int range, Player player) {
+	public void IncreaseVisibility (HexCell fromCell, int range, TeamColor player) {
 		List<HexCell> cells = GetVisibleCells(fromCell, range);
 		for (int i = 0; i < cells.Count; i++) {
 			cells[i].IncreaseVisibility(player);
@@ -439,7 +440,7 @@ public class HexGrid : MonoBehaviour {
 		ListPool<HexCell>.Add(cells);
 	}
 
-	public void DecreaseVisibility (HexCell fromCell, int range, Player player) {
+	public void DecreaseVisibility (HexCell fromCell, int range, TeamColor player) {
 		List<HexCell> cells = GetVisibleCells(fromCell, range);
 		for (int i = 0; i < cells.Count; i++) {
 			cells[i].DecreaseVisibility(player);

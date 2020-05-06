@@ -42,7 +42,7 @@ public class NewMapMenu : MonoBehaviour {
 
 	void CreateMap (int x, int z) {
 		if (generateMaps) {
-			mapGenerator.GenerateMap(x, z, wrapping);
+			mapGenerator.RpcGenerateMap(x, z, wrapping);
 		}
 		else {
 			hexGrid.CreateMap(x, z, wrapping);

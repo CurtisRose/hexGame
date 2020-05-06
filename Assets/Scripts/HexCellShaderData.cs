@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class HexCellShaderData : MonoBehaviour {
+public class HexCellShaderData : NetworkBehaviour {
 
 	const float transitionSpeed = 255f;
 
@@ -49,6 +50,13 @@ public class HexCellShaderData : MonoBehaviour {
 
 	public void RefreshTerrain (HexCell cell) {
 		cellTextureData[cell.Index].a = (byte)cell.TerrainTypeIndex;
+		enabled = true;
+	}
+
+	[ClientRpc]
+	public void RpcRefreshTerrain(int cellIndex, int terrainTypeIndex)
+	{
+		cellTextureData[cellIndex].a = (byte)terrainTypeIndex;
 		enabled = true;
 	}
 

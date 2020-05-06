@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
+using UnityEngine.Networking;
 
-public class HexMapCamera : MonoBehaviour {
+public class HexMapCamera : NetworkBehaviour {
 
 	public float stickMinZoom, stickMaxZoom;
 
@@ -28,7 +29,8 @@ public class HexMapCamera : MonoBehaviour {
 		}
 	}
 
-	public static void ValidatePosition () {
+	public static void ValidatePosition()
+	{
 		instance.AdjustPosition(0f, 0f);
 	}
 
@@ -37,12 +39,25 @@ public class HexMapCamera : MonoBehaviour {
 		stick = swivel.GetChild(0);
 	}
 
+	void Start()
+	{
+		if (GameObject.FindGameObjectWithTag("HexGrid") != null)
+		{
+			grid = GameObject.FindGameObjectWithTag("HexGrid").GetComponent<HexGrid>();
+			ValidatePosition();
+		}
+	}
+
 	void OnEnable () {
 		instance = this;
 		ValidatePosition();
 	}
 
 	void Update () {
+		if (!isLocalPlayer)
+		{
+			return;
+		}
 		if (allowUserInput) {
 			float zoomDelta = Input.GetAxis("Mouse ScrollWheel");
 			if (zoomDelta != 0f) {
@@ -84,6 +99,17 @@ public class HexMapCamera : MonoBehaviour {
 	}
 
 	void AdjustPosition (float xDelta, float zDelta) {
+		if (grid == null)
+		{
+			if (GameObject.FindGameObjectWithTag("HexGrid") != null)
+			{
+				grid = GameObject.FindGameObjectWithTag("HexGrid").GetComponent<HexGrid>();
+			}
+			else
+			{
+				return;
+			}
+		}
 		Vector3 direction =
 			transform.localRotation *
 			new Vector3(xDelta, 0f, zDelta).normalized;
@@ -99,6 +125,17 @@ public class HexMapCamera : MonoBehaviour {
 	}
 
 	Vector3 ClampPosition (Vector3 position) {
+		if (grid == null)
+		{
+			if (GameObject.FindGameObjectWithTag("HexGrid") != null)
+			{
+				grid = GameObject.FindGameObjectWithTag("HexGrid").GetComponent<HexGrid>();
+			}
+			else
+			{
+				return Vector3.zero;
+			}
+		}
 		float xMax = (grid.cellCountX - 0.5f) * HexMetrics.innerDiameter;
 		position.x = Mathf.Clamp(position.x, 0f, xMax);
 
@@ -109,6 +146,17 @@ public class HexMapCamera : MonoBehaviour {
 	}
 
 	Vector3 WrapPosition (Vector3 position) {
+		if (grid == null)
+		{
+			if (GameObject.FindGameObjectWithTag("HexGrid") != null)
+			{
+				grid = GameObject.FindGameObjectWithTag("HexGrid").GetComponent<HexGrid>();
+			}
+			else
+			{
+				return Vector3.zero;
+			}
+		}
 		float width = grid.cellCountX * HexMetrics.innerDiameter;
 		while (position.x < 0f) {
 			position.x += width;
@@ -134,5 +182,14 @@ public class HexMapCamera : MonoBehaviour {
 
 	public void EnableUserInput() {
 		allowUserInput = true;
+	}
+
+	public Camera GetHexCamera()
+	{
+		return GetComponentInChildren<Camera>();
+	}
+	public AudioListener GetAudioListener()
+	{
+		return GetComponentInChildren<AudioListener>();
 	}
 }

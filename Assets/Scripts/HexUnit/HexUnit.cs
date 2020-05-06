@@ -2,8 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using UnityEngine.Networking;
 
-public class HexUnit : MonoBehaviour {
+public class HexUnit : NetworkBehaviour {
 	protected const float rotationSpeed = 180f;
 	protected const float travelSpeed = 1f;
 
@@ -74,7 +75,7 @@ public class HexUnit : MonoBehaviour {
 		}
 	}
 
-	protected Player player;
+	protected TeamColor player;
 
 	List<HexCell> pathToTravel;
 
@@ -285,11 +286,11 @@ public class HexUnit : MonoBehaviour {
 		healthBar.Heal(healAmount);
 	}
 
-	public Player GetPlayer() {
+	public TeamColor GetPlayer() {
 		return player;
 	}
 
-	public void SetPlayer(Player player) {
+	public void SetPlayer(TeamColor player) {
 		this.player = player;
 		Renderer[] skins = GetComponentsInChildren<Renderer>();
 		foreach (Renderer skin in skins) {

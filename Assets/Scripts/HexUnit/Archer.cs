@@ -4,9 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 
 public class Archer : HexUnit {
-	protected new uint damage = 25;
-	protected new UnitType unitType = UnitType.Archer;
-
 	public new int Speed {
 		get {
 			return 30;

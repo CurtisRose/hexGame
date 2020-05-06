@@ -129,6 +129,17 @@ public class HexGameUI : MonoBehaviour {
 	}
 
 	void DoSelection () {
+		if (grid == null)
+		{
+			if (GameObject.FindGameObjectWithTag("HexGrid") != null)
+			{
+				grid = GameObject.FindGameObjectWithTag("HexGrid").GetComponent<HexGrid>();
+			}
+			else
+			{
+				return;
+			}
+		}
 		grid.ClearPath();
 		UpdateCurrentCell();
 		if (currentCell) {
@@ -234,6 +245,14 @@ public class HexGameUI : MonoBehaviour {
 	}
 
 	bool UpdateCurrentCell () {
+		if (Camera.main == null)
+		{
+			return false;
+		}
+		if (grid == null)
+		{
+			return false;
+		}
 		HexCell cell =
 			grid.GetCell(Camera.main.ScreenPointToRay(Input.mousePosition));
 		if (cell != currentCell) {

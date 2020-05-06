@@ -4,9 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 
 public class Swordsman : HexUnit {
-	protected new uint damage = 50;
-	protected new UnitType unitType = UnitType.Swordsman;
-
 	public new int Speed {
 		get {
 			return 24;

@@ -89,6 +89,17 @@ public class HexMapEditor : MonoBehaviour {
 	}
 
 	void Update () {
+		if (hexGrid == null)
+		{
+			if (GameObject.FindGameObjectWithTag("HexGrid") != null)
+			{
+				hexGrid = GameObject.FindGameObjectWithTag("HexGrid").GetComponent<HexGrid>();
+			}
+			else
+			{
+				return;
+			}
+		}
 		if (!EventSystem.current.IsPointerOverGameObject()) {
 			if (Input.GetMouseButton(0)) {
 				HandleInput();
@@ -107,6 +118,14 @@ public class HexMapEditor : MonoBehaviour {
 	}
 
 	HexCell GetCellUnderCursor () {
+		if (Camera.main == null)
+		{
+			return null;
+		}
+		if (hexGrid == null)
+		{
+			return null;
+		}
 		return
 			hexGrid.GetCell(Camera.main.ScreenPointToRay(Input.mousePosition));
 	}
@@ -177,7 +196,6 @@ public class HexMapEditor : MonoBehaviour {
 	void EditCell (HexCell cell) {
 		if (cell) {
 			if (activeTerrainTypeIndex >= 0) {
-				Debug.Log(activeTerrainTypeIndex);
 				cell.TerrainTypeIndex = activeTerrainTypeIndex;
 			}
 			if (applyElevation) {

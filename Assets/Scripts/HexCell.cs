@@ -2,8 +2,9 @@
 using UnityEngine.UI;
 using System.IO;
 using System.Collections.Generic;
+using UnityEngine.Networking;
 
-public class HexCell : MonoBehaviour {
+public class HexCell : NetworkBehaviour {
 
 	public HexCoordinates coordinates;
 
@@ -15,6 +16,8 @@ public class HexCell : MonoBehaviour {
 
 	public int ColumnIndex { get; set; }
 
+	[SyncVar]
+	int elevation = int.MinValue;
 	public int Elevation {
 		get {
 			return elevation;
@@ -222,6 +225,7 @@ public class HexCell : MonoBehaviour {
 		}
 	}
 
+	int terrainTypeIndex;
 	public int TerrainTypeIndex {
 		get {
 			return terrainTypeIndex;
@@ -234,7 +238,7 @@ public class HexCell : MonoBehaviour {
 		}
 	}
 
-	public bool IsVisible(Player player) {
+	public bool IsVisible(TeamColor player) {
 		return visibility[(int)player] > 0 && Explorable;
 	}
 
@@ -243,7 +247,7 @@ public class HexCell : MonoBehaviour {
 		return visibility[(int)TurnManager.GetCurrentPlayer()] > 0 && Explorable;
 	}
 
-	public bool IsExplored(Player player) {
+	public bool IsExplored(TeamColor player) {
 		return explored[(int)player] && Explorable;
 	}
 
@@ -276,9 +280,7 @@ public class HexCell : MonoBehaviour {
 
 	public HexCellShaderData ShaderData { get; set; }
 
-	int terrainTypeIndex;
 
-	int elevation = int.MinValue;
 	int waterLevel;
 
 	int urbanLevel, farmLevel, plantLevel;
@@ -310,7 +312,7 @@ public class HexCell : MonoBehaviour {
 		}
 	}
 
-	public void IncreaseVisibility (Player player) {
+	public void IncreaseVisibility (TeamColor player) {
 		visibility[(int)player] += 1;
 		if (visibility[(int)player] == 1) {
 			explored[(int)player] = true;
@@ -322,7 +324,7 @@ public class HexCell : MonoBehaviour {
 		}
 	}
 
-	public void DecreaseVisibility (Player player) {
+	public void DecreaseVisibility (TeamColor player) {
 		visibility[(int)player] -= 1;
 		if (visibility[(int)player] == 0) {
 			ShaderData.RefreshVisibility(this);
