@@ -143,38 +143,15 @@ public class HexMapGenerator : NetworkBehaviour
 	private void Start()
 	{
 		grid = GameObject.FindGameObjectWithTag("HexGrid").GetComponent<HexGrid>();
-		if (!isLocalPlayer)
-		{
-			return;
-		}
 	}
 
-	[SyncVar(hook = "SetSeed")]
+	//[SyncVar(hook = "SetSeed")]
 	public int seed;
 
-	public void SetSeed(int newSeed)
-	{
-		if (isServer)
-		{
-			//Debug.Log("Server " + seed + " " + newSeed);
-			return;
-		}
-		//Debug.Log("Client " + seed + " " + newSeed);
-		seed = newSeed;
-	}
-
 	[ClientRpc]
-	public void RpcSetSeed()
+	public void RpcSetSeed(int newSeed)
 	{
-		Debug.Log("RpcSetSeed 1");
-		if (!useFixedSeed)
-		{
-			Debug.Log("RpcSetSeed 2");
-			seed = Random.Range(0, int.MaxValue);
-			seed ^= (int)System.DateTime.Now.Ticks;
-			seed ^= (int)Time.unscaledTime;
-			seed &= int.MaxValue;
-		}
+		seed = newSeed;
 	}
 
 	[ClientRpc]

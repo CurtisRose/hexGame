@@ -41,30 +41,19 @@ public class HexPlayer : NetworkBehaviour
         {
             return;
         }
-        if (generateMap)
-        {
-            generateMap = false;
-            CmdCommand();
-        }
+
         if (Input.GetKeyDown(KeyCode.H))
         {
-            generateMap = true;
-            CmdSetSeed();
-        }
-        if (Input.GetKeyDown(KeyCode.G))
-        {
-            CmdSetSeed();
+            int seed = Random.Range(0, int.MaxValue);
+            seed ^= (int)System.DateTime.Now.Ticks;
+            seed ^= (int)Time.unscaledTime;
+            seed &= int.MaxValue;
+            CmdGenerateMap(seed);
         }
     }
 
     [Command]
-    void CmdSetSeed()
-    {
-        mapGenerator.RpcSetSeed();
-    }
-
-    [Command]
-    void CmdCommand()
+    void CmdGenerateMap(int seed)
     {
         if (mapGenerator == null)
         {
@@ -72,10 +61,10 @@ public class HexPlayer : NetworkBehaviour
         }
         if (mapGenerator != null)
         {
+            mapGenerator.RpcSetSeed(seed);
             mapGenerator.RpcGenerateMap(40, 30, true);
         }
 
-        /*
         if (hexMapCamera == null)
         {
             if (hexMapCamera != null)
@@ -88,6 +77,6 @@ public class HexPlayer : NetworkBehaviour
         if (hexMapCamera != null)
         {
             HexMapCamera.ValidatePosition();
-        }*/
+        }
     }
 }
