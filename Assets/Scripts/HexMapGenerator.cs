@@ -182,6 +182,8 @@ public class HexMapGenerator : NetworkBehaviour
 		}
 
 		Random.state = originalRandomState;
+
+		HexMapCamera.ValidatePosition();
 	}
 
 	void CreateRegions()

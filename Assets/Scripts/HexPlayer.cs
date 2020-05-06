@@ -64,19 +64,5 @@ public class HexPlayer : NetworkBehaviour
             mapGenerator.RpcSetSeed(seed);
             mapGenerator.RpcGenerateMap(40, 30, true);
         }
-
-        if (hexMapCamera == null)
-        {
-            if (hexMapCamera != null)
-            {
-                hexMapCamera.GetHexCamera().enabled = true;
-                hexMapCamera.GetHexCamera().tag = "MainCamera";
-                hexMapCamera.GetAudioListener().enabled = true;
-            }
-        }
-        if (hexMapCamera != null)
-        {
-            HexMapCamera.ValidatePosition();
-        }
     }
 }
