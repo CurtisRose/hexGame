@@ -109,7 +109,6 @@ public class HexMapEditor : NetworkBehaviour {
 			}
 			if (Input.GetKeyDown(KeyCode.U)) {
 				HexCell cell = GetCellUnderCursor();
-				Debug.Log(cell.ToString());
 				if (cell && !cell.Unit && cell.Explorable)
 				{
 					CmdCreateUnit(UnitType.Swordsman, cell.Position);
