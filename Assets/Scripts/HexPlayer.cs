@@ -44,16 +44,13 @@ public class HexPlayer : NetworkBehaviour
 
         if (Input.GetKeyDown(KeyCode.H))
         {
-            int seed = Random.Range(0, int.MaxValue);
-            seed ^= (int)System.DateTime.Now.Ticks;
-            seed ^= (int)Time.unscaledTime;
-            seed &= int.MaxValue;
-            CmdGenerateMap(seed);
+            CmdGenerateMap(30, 40);
         }
     }
 
+
     [Command]
-    void CmdGenerateMap(int seed)
+    public void CmdGenerateMap(int x, int z)
     {
         if (mapGenerator == null)
         {
@@ -61,8 +58,12 @@ public class HexPlayer : NetworkBehaviour
         }
         if (mapGenerator != null)
         {
+            int seed = Random.Range(0, int.MaxValue);
+            seed ^= (int)System.DateTime.Now.Ticks;
+            seed ^= (int)Time.unscaledTime;
+            seed &= int.MaxValue;
             mapGenerator.RpcSetSeed(seed);
-            mapGenerator.RpcGenerateMap(40, 30, true);
+            mapGenerator.RpcGenerateMap(x, z, true);
         }
     }
 }

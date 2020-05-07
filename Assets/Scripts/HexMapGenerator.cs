@@ -186,6 +186,38 @@ public class HexMapGenerator : NetworkBehaviour
 		HexMapCamera.ValidatePosition();
 	}
 
+	[Command]
+	public void CmdGenerateMap(int x, int z, bool wrapping)
+	{
+		Random.State originalRandomState = Random.state;
+		Random.InitState(seed);
+
+		cellCount = x * z;
+		grid.CreateMap(x, z, wrapping);
+		if (searchFrontier == null)
+		{
+			searchFrontier = new HexCellPriorityQueue();
+		}
+		for (int i = 0; i < cellCount; i++)
+		{
+			grid.GetCell(i).WaterLevel = waterLevel;
+		}
+		CreateRegions();
+		CreateLand();
+		ErodeLand();
+		CreateClimate();
+		CreateRivers();
+		SetTerrainType();
+		for (int i = 0; i < cellCount; i++)
+		{
+			grid.GetCell(i).SearchPhase = 0;
+		}
+
+		Random.state = originalRandomState;
+
+		HexMapCamera.ValidatePosition();
+	}
+
 	void CreateRegions()
 	{
 		if (regions == null)

@@ -1,14 +1,30 @@
-﻿using UnityEngine;
+﻿using System.ComponentModel.Design;
+using UnityEngine;
+using UnityEngine.Networking;
 
-public class NewMapMenu : MonoBehaviour {
+public class NewMapMenu : NetworkBehaviour {
+	[SerializeField]
+	HexPlayer hexPlayer;
 
-	public HexGrid hexGrid;
+	HexGrid hexGrid;
 
-	public HexMapGenerator mapGenerator;
+	HexMapGenerator mapGenerator;
 
 	bool generateMaps = true;
 
 	bool wrapping = true;
+
+	private void Start()
+	{
+		if (GameObject.FindGameObjectWithTag("HexGrid") != null)
+		{
+			hexGrid = GameObject.FindGameObjectWithTag("HexGrid").GetComponent<HexGrid>();
+		}
+		if (GameObject.FindGameObjectWithTag("HexMapGenerator") != null)
+		{
+			mapGenerator = GameObject.FindGameObjectWithTag("HexMapGenerator").GetComponent<HexMapGenerator>();
+		}
+	}
 
 	public void ToggleMapGeneration (bool toggle) {
 		generateMaps = toggle;
@@ -42,7 +58,7 @@ public class NewMapMenu : MonoBehaviour {
 
 	void CreateMap (int x, int z) {
 		if (generateMaps) {
-			mapGenerator.RpcGenerateMap(x, z, wrapping);
+			hexPlayer.CmdGenerateMap(30, 40);
 		}
 		else {
 			hexGrid.CreateMap(x, z, wrapping);
