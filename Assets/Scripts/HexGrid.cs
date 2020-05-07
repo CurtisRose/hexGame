@@ -6,6 +6,11 @@ using UnityEngine.Networking;
 
 public class HexGrid : NetworkBehaviour {
 
+	public static HexGrid GetInstance()
+	{
+		return GameObject.FindGameObjectWithTag("HexGrid").GetComponent<HexGrid>();
+	}
+
 	public int cellCountX = 20, cellCountZ = 15;
 
 	public bool wrapping;

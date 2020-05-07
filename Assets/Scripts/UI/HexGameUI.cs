@@ -40,6 +40,7 @@ public class HexGameUI : MonoBehaviour {
 
 	private void Start() {
 		whoseTurnText.text = TurnManager.GetCurrentPlayer().ToString() + "'s Turn";
+		grid = HexGrid.GetInstance();
 	}
 
 	void Update () {

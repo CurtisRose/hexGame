@@ -91,10 +91,7 @@ public class HexMapEditor : NetworkBehaviour {
 
 	private void Start()
 	{
-		if (GameObject.FindGameObjectWithTag("HexGrid") != null)
-		{
-			hexGrid = GameObject.FindGameObjectWithTag("HexGrid").GetComponent<HexGrid>();
-		}
+		hexGrid = HexGrid.GetInstance();
 	}
 
 	void Update () {

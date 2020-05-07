@@ -142,7 +142,7 @@ public class HexMapGenerator : NetworkBehaviour
 
 	private void Start()
 	{
-		grid = GameObject.FindGameObjectWithTag("HexGrid").GetComponent<HexGrid>();
+		grid = HexGrid.GetInstance();
 	}
 
 	//[SyncVar(hook = "SetSeed")]

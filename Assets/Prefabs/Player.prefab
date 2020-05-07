@@ -9060,7 +9060,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 7963215440112514188}
         m_MethodName: SetEditMode
         m_Mode: 0
         m_Arguments:
@@ -9071,7 +9071,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 4321834099066431443}
         m_MethodName: SetEditMode
         m_Mode: 0
         m_Arguments:

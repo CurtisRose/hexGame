@@ -41,11 +41,8 @@ public class HexMapCamera : NetworkBehaviour {
 
 	void Start()
 	{
-		if (GameObject.FindGameObjectWithTag("HexGrid") != null)
-		{
-			grid = GameObject.FindGameObjectWithTag("HexGrid").GetComponent<HexGrid>();
-			ValidatePosition();
-		}
+		grid = HexGrid.GetInstance();
+		ValidatePosition();
 	}
 
 	void OnEnable () {
