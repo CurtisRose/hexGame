@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using System.IO;
+using UnityEngine.Networking;
 
 public enum UnitType { Swordsman, Archer };
-public class HexMapEditor : MonoBehaviour {
+public class HexMapEditor : NetworkBehaviour {
 
 	public HexGrid hexGrid;
 
@@ -88,17 +89,18 @@ public class HexMapEditor : MonoBehaviour {
 		TurnManager.LoadMaterials();
 	}
 
-	void Update () {
-		if (hexGrid == null)
+	private void Start()
+	{
+		if (GameObject.FindGameObjectWithTag("HexGrid") != null)
 		{
-			if (GameObject.FindGameObjectWithTag("HexGrid") != null)
-			{
-				hexGrid = GameObject.FindGameObjectWithTag("HexGrid").GetComponent<HexGrid>();
-			}
-			else
-			{
-				return;
-			}
+			hexGrid = GameObject.FindGameObjectWithTag("HexGrid").GetComponent<HexGrid>();
+		}
+	}
+
+	void Update () {
+		if (!isLocalPlayer)
+		{
+			return;
 		}
 		if (!EventSystem.current.IsPointerOverGameObject()) {
 			if (Input.GetMouseButton(0)) {
@@ -106,11 +108,21 @@ public class HexMapEditor : MonoBehaviour {
 				return;
 			}
 			if (Input.GetKeyDown(KeyCode.U)) {
-				CreateUnit(UnitType.Swordsman);
+				HexCell cell = GetCellUnderCursor();
+				Debug.Log(cell.ToString());
+				if (cell && !cell.Unit && cell.Explorable)
+				{
+					CmdCreateUnit(UnitType.Swordsman, cell.Position);
+				}
 				return;
 			}
 			if (Input.GetKeyDown(KeyCode.I)) {
-				CreateUnit(UnitType.Archer);
+				HexCell cell = GetCellUnderCursor();
+				Debug.Log(cell.ToString());
+				if (cell && !cell.Unit && cell.Explorable)
+				{
+					CmdCreateUnit(UnitType.Archer, cell.Position);
+				}
 				return;
 			}
 		}
@@ -130,13 +142,22 @@ public class HexMapEditor : MonoBehaviour {
 			hexGrid.GetCell(Camera.main.ScreenPointToRay(Input.mousePosition));
 	}
 
-	void CreateUnit (UnitType unitType) {
-		HexCell cell = GetCellUnderCursor();
-		if (cell && !cell.Unit && cell.Explorable) {
-			hexGrid.AddUnit(
-				Instantiate(hexUnitPrefab[(int)unitType]), cell, Random.Range(0f, 360f));
-		}
+	void CreateUnit (UnitType unitType, Vector3 position) {
+		HexCell cell = hexGrid.GetCell(position);
+		hexGrid.AddUnit(
+			NetworkManager.Instantiate<HexUnit>(hexUnitPrefab[(int)unitType]), cell, Random.Range(0f, 360f));
+	}
 
+	[Command]
+	void CmdCreateUnit(UnitType unitType, Vector3 position)
+	{
+		RpcCreateUnit(unitType, position);
+	}
+
+	[ClientRpc]
+	void RpcCreateUnit(UnitType unitType, Vector3 position)
+	{
+		CreateUnit(unitType, position);
 	}
 
 	void DestroyUnit () {
