@@ -314,12 +314,11 @@ public class HexGrid : MonoBehaviour {
 		cellShaderData.ImmediateMode = originalImmediateMode;
 	}
 
-	public List<HexCell> GetPath () {
-		if (!currentPathExists) {
-			return null;
-		}
+	public List<HexCell> CreatePath(HexCell currentPathFrom, HexCell currentPathTo)
+	{
 		List<HexCell> path = ListPool<HexCell>.Get();
-		for (HexCell c = currentPathTo; c != currentPathFrom; c = c.PathFrom) {
+		for (HexCell c = currentPathTo; c != currentPathFrom; c = c.PathFrom)
+		{
 			path.Add(c);
 		}
 		path.Add(currentPathFrom);
@@ -365,6 +364,21 @@ public class HexGrid : MonoBehaviour {
 		currentPathTo = toCell;
 		currentPathExists = Search(fromCell, toCell, unit);
 		ShowPath(unit.Speed);
+	}
+
+	public List<HexCell> GetPath(Vector3 fromCellLocation, Vector3 toCellLocation)
+	{
+		ClearPath();
+		currentPathFrom = GetCell(fromCellLocation);
+		HexUnit unit = currentPathFrom.Unit;
+		currentPathTo = GetCell(toCellLocation);
+		if (Search(currentPathFrom, currentPathTo, unit))
+		{
+			return CreatePath(currentPathFrom, currentPathTo);
+		} else
+		{
+			return null;
+		}
 	}
 
 	bool Search (HexCell fromCell, HexCell toCell, HexUnit unit) {

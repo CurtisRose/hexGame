@@ -55,7 +55,7 @@ public class HexGameUI : MonoBehaviour {
 						if (targetUnit != null ) {
 							GiveAttackCommand(targetCell);
 						} else {
-							GiveMoveCommand();
+							GiveMoveCommand(selectedUnit.Location.Position, targetCell.Position);
 						}
 					}
 				}
@@ -176,35 +176,33 @@ public class HexGameUI : MonoBehaviour {
 		//selectedUnit.CreateCommand();
 	}
 
-	void GiveMoveCommand() {
+	void GiveMoveCommand(Vector3 targetUnitLocation, Vector3 targetLocation) {
 		CleanOutCommands();
-		if (grid.HasPath) {
-			//selectedUnit.SetPath(grid.GetPath());
-			List<HexCell> fullPath = grid.GetPath();
-			int turnNumber = 0;
+		//selectedUnit.SetPath(grid.GetPath());
+		List<HexCell> fullPath = grid.GetPath(targetUnitLocation, targetLocation);
+		int turnNumber = 0;
 
-			while (fullPath.Count > 1) {
-				List<HexCell> partialPath = selectedUnit.PartitionPath(ref fullPath);
-				MoveCommand moveCommand = new MoveCommand(selectedUnit, partialPath);
-				List<Command> commands;
-				if (commandList != null && commandList.Count < (turnNumber+1)) {
-					commandList.Add(new List<Command>());
-					commands = new List<Command>();
-				} else {
-					commands = commandList[turnNumber];
-				}
-				bool goodCommand = moveCommand.ValidateAddCommand(ref commands);
-
-				if (goodCommand) {
-					commandList[turnNumber] = commands;
-				} else {
-					// Invalid command, don't continue.
-					return;
-				}
-				turnNumber++;
+		while (fullPath.Count > 1) {
+			List<HexCell> partialPath = selectedUnit.PartitionPath(ref fullPath);
+			MoveCommand moveCommand = new MoveCommand(selectedUnit, partialPath);
+			List<Command> commands;
+			if (commandList != null && commandList.Count < (turnNumber+1)) {
+				commandList.Add(new List<Command>());
+				commands = new List<Command>();
+			} else {
+				commands = commandList[turnNumber];
 			}
-			StopPathFinding();
+			bool goodCommand = moveCommand.ValidateAddCommand(ref commands);
+
+			if (goodCommand) {
+				commandList[turnNumber] = commands;
+			} else {
+				// Invalid command, don't continue.
+				return;
+			}
+			turnNumber++;
 		}
+		StopPathFinding();
 	}
 
 	void GiveAttackCommand(HexCell target) {
