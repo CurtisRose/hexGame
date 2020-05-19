@@ -1383,7 +1383,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 7963215440112514188}
         m_MethodName: SetTerrainTypeIndex
         m_Mode: 3
         m_Arguments:
@@ -2825,7 +2825,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 7963215440112514188}
         m_MethodName: SetRoadMode
         m_Mode: 3
         m_Arguments:
@@ -3139,7 +3139,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 7963215440112514188}
         m_MethodName: SetApplyElevation
         m_Mode: 0
         m_Arguments:
@@ -3313,7 +3313,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 7963215440112514188}
         m_MethodName: SetApplyWaterLevel
         m_Mode: 0
         m_Arguments:
@@ -4446,7 +4446,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 7963215440112514188}
         m_MethodName: SetRoadMode
         m_Mode: 3
         m_Arguments:
@@ -5135,7 +5135,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 7963215440112514188}
         m_MethodName: SetRiverMode
         m_Mode: 3
         m_Arguments:
@@ -6397,7 +6397,7 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 7963215440112514188}
         m_MethodName: SetWaterLevel
         m_Mode: 0
         m_Arguments:
@@ -7721,7 +7721,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 7963215440112514188}
         m_MethodName: SetRoadMode
         m_Mode: 3
         m_Arguments:
@@ -7911,7 +7911,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 7963215440112514188}
         m_MethodName: SetRiverMode
         m_Mode: 3
         m_Arguments:
@@ -9319,7 +9319,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 7963215440112514188}
         m_MethodName: SetTerrainTypeIndex
         m_Mode: 3
         m_Arguments:
@@ -10037,7 +10037,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 7963215440112514188}
         m_MethodName: SetTerrainTypeIndex
         m_Mode: 3
         m_Arguments:
@@ -10133,7 +10133,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 7963215440112514188}
         m_MethodName: SetRiverMode
         m_Mode: 3
         m_Arguments:
@@ -10910,7 +10910,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 7963215440112514188}
         m_MethodName: SetTerrainTypeIndex
         m_Mode: 3
         m_Arguments:
@@ -11006,7 +11006,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 7963215440112514188}
         m_MethodName: SetTerrainTypeIndex
         m_Mode: 3
         m_Arguments:
@@ -11447,7 +11447,7 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 7963215440112514188}
         m_MethodName: SetBrushSize
         m_Mode: 0
         m_Arguments:
@@ -11542,7 +11542,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 7963215440112514188}
         m_MethodName: SetTerrainTypeIndex
         m_Mode: 3
         m_Arguments:
@@ -11721,7 +11721,7 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 7963215440112514188}
         m_MethodName: SetElevation
         m_Mode: 0
         m_Arguments:
