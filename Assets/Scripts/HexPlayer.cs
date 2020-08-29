@@ -7,13 +7,15 @@ public class HexPlayer : NetworkBehaviour
 {
     HexMapCamera hexMapCamera;
     HexMapGenerator mapGenerator;
+    [SerializeField]
+    Transform OnlyLocalPlayer;
 
     // Start is called before the first frame update
     void Start()
     {
-        if (isServer)
+        if (isLocalPlayer)
         {
-            //CmdSetSeed();
+            OnlyLocalPlayer.gameObject.SetActive(true);
         }
     }
 
