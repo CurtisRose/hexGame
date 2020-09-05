@@ -12984,11 +12984,11 @@ MonoBehaviour:
   useFixedSeed: 0
   seed: 1208905299
   jitterProbability: 0.25
-  chunkSizeMin: 30
-  chunkSizeMax: 100
+  chunkSizeMin: 60
+  chunkSizeMax: 200
   highRiseProbability: 0.25
   sinkProbability: 0.2
-  landPercentage: 50
+  landPercentage: 60
   waterLevel: 3
   elevationMinimum: -2
   elevationMaximum: 8
