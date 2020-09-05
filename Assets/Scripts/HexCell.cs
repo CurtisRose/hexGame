@@ -27,6 +27,11 @@ public class HexCell : MonoBehaviour {
         }
     }
 
+	public void Triangulate()
+    {
+		hexFeature.Triangulate();
+    }
+
     public int Elevation {
 		get {
 			return elevation;
@@ -48,7 +53,6 @@ public class HexCell : MonoBehaviour {
 					SetRoad(i, false);
 				}
 			}
-
 			Refresh();
 		}
 	}

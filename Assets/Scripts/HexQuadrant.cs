@@ -4,28 +4,51 @@ using UnityEngine;
 
 public class HexQuadrant
 {
+    HexCell cell;
     HexFeature hexFeature;
-    public EdgeVertices edgeVertice;
-    public Vector3 center, v1, v2, v3, v4;
+    HexDirection direction;
+
+    static Color weights1 = new Color(1f, 0f, 0f);
+    static Color weights2 = new Color(0f, 1f, 0f);
+    static Color weights3 = new Color(0f, 0f, 1f);
 
     public HexQuadrant(HexFeature hexFeature, HexDirection direction)
     {
         this.hexFeature = hexFeature;
-        this.center = hexFeature.cell.Position;
-        v1 = Vector3.Lerp(center, v3, 0.5f);
-        v2 = Vector3.Lerp(center, v4, 0.5f);
-        v3 = center + HexMetrics.GetFirstSolidCorner(direction);
-        v4 = center + HexMetrics.GetSecondSolidCorner(direction);
-        edgeVertice = new EdgeVertices(v3, v4);
+        this.direction = direction;
+        cell = hexFeature.cell;
     }
 
     public void Triangulate()
     {
-        HexMesh hexMesh = hexFeature.cell.chunk.terrain;
-        hexMesh.AddTriangle(center, v3, v4);
+        Vector3 center = cell.Position;
+        EdgeVertices edgeVertice = new EdgeVertices(
+            center + HexMetrics.GetFirstSolidCorner(direction),
+            center + HexMetrics.GetSecondSolidCorner(direction)
+        );
+        TriangulateQuadrant(direction, cell, center, edgeVertice);
+    }
+
+    void TriangulateQuadrant(
+        HexDirection direction, HexCell cell, Vector3 center, EdgeVertices e
+    )
+    {
+        TriangulateEdgeFan(center, e, cell.Index);
+    }
+
+    void TriangulateEdgeFan(Vector3 center, EdgeVertices edge, float index)
+    {
+        HexMesh hexMesh = cell.chunk.terrain;
+        hexMesh.AddTriangle(center, edge.v1, edge.v2);
+        hexMesh.AddTriangle(center, edge.v2, edge.v3);
+        hexMesh.AddTriangle(center, edge.v3, edge.v4);
+        hexMesh.AddTriangle(center, edge.v4, edge.v5);
 
         Vector3 indices;
-        indices.x = indices.y = indices.z = hexFeature.cell.Index;
-        hexMesh.AddTriangleCellData(indices, Color.red);
+        indices.x = indices.y = indices.z = index;
+        hexMesh.AddTriangleCellData(indices, weights1);
+        hexMesh.AddTriangleCellData(indices, weights1);
+        hexMesh.AddTriangleCellData(indices, weights1);
+        hexMesh.AddTriangleCellData(indices, weights1);
     }
 }
