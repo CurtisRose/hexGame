@@ -177,7 +177,6 @@ public class HexMapEditor : MonoBehaviour {
 	void EditCell (HexCell cell) {
 		if (cell) {
 			if (activeTerrainTypeIndex >= 0) {
-				Debug.Log(activeTerrainTypeIndex);
 				cell.TerrainTypeIndex = activeTerrainTypeIndex;
 			}
 			if (applyElevation) {
