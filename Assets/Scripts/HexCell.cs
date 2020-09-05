@@ -11,11 +11,23 @@ public class HexCell : MonoBehaviour {
 
 	public HexGridChunk chunk;
 
+	public HexFeature hexFeature;
+
 	public int Index { get; set; }
 
 	public int ColumnIndex { get; set; }
 
-	public int Elevation {
+
+	// TODO: Delete Update
+    public void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+			Debug.Log("Cell Index = " + Index + " Num Neighbors = " + GetNumNeighbors());
+        }
+    }
+
+    public int Elevation {
 		get {
 			return elevation;
 		}
@@ -83,10 +95,11 @@ public class HexCell : MonoBehaviour {
 		}
 	}
 
-	public bool HasRiver {
-		get {
-			return hasIncomingRiver || hasOutgoingRiver;
-		}
+	public bool HasRiver ()
+	{
+		return HasRiver(HexDirection.NE) || HasRiver(HexDirection.E) ||
+			HasRiver(HexDirection.SE) || HasRiver(HexDirection.SW) ||
+			HasRiver(HexDirection.W) || HasRiver(HexDirection.NW);
 	}
 
 	public bool HasRiverBeginOrEnd {
@@ -100,6 +113,12 @@ public class HexCell : MonoBehaviour {
 			return hasIncomingRiver ? incomingRiver : outgoingRiver;
 		}
 	}
+
+	public bool HasRiver(HexDirection direction)
+	{
+		return hasRiverV2[(int)direction];
+	}
+
 
 	public bool HasRoads {
 		get {
@@ -196,7 +215,7 @@ public class HexCell : MonoBehaviour {
 			return specialIndex;
 		}
 		set {
-			if (specialIndex != value && !HasRiver) {
+			if (specialIndex != value && !HasRiver()) {
 				specialIndex = value;
 				RemoveRoads();
 				RefreshSelfOnly();
@@ -295,6 +314,9 @@ public class HexCell : MonoBehaviour {
 	bool hasIncomingRiver, hasOutgoingRiver;
 	HexDirection incomingRiver, outgoingRiver;
 
+	// indexed by HexDirection
+	bool[] hasRiverV2 = new bool[6];
+
 	[SerializeField]
 	HexCell[] neighbors;
 
@@ -309,6 +331,11 @@ public class HexCell : MonoBehaviour {
 			explored.Add(false);
 		}
 	}
+
+	public HexFeature GetHexFeature()
+    {
+		return hexFeature;
+    }
 
 	public void IncreaseVisibility (Player player) {
 		visibility[(int)player] += 1;
@@ -345,6 +372,19 @@ public class HexCell : MonoBehaviour {
 		return neighbors[(int)direction];
 	}
 
+	public int GetNumNeighbors()
+    {
+		int count = 0;
+		foreach(HexCell cell in neighbors)
+        {
+			if (cell != null)
+            {
+				count += 1;
+            }
+        }
+		return count;
+    }
+
 	public void SetNeighbor (HexDirection direction, HexCell cell) {
 		neighbors[(int)direction] = cell;
 		cell.neighbors[(int)direction.Opposite()] = this;
@@ -355,6 +395,17 @@ public class HexCell : MonoBehaviour {
 			elevation, neighbors[(int)direction].elevation
 		);
 	}
+
+	public bool HasNeighbor(HexDirection direction)
+    {
+		if (GetNeighbor(direction) == null)
+        {
+			return false;
+        } else
+        {
+			return true;
+        }
+    }
 
 	public HexCell[] GetNeighbors(){
 		return neighbors;
@@ -408,6 +459,37 @@ public class HexCell : MonoBehaviour {
 	public void RemoveRiver () {
 		RemoveOutgoingRiver();
 		RemoveIncomingRiver();
+	}
+
+	public void RemoveRiver(HexDirection direction)
+	{
+		if (!HasRiver(direction))
+		{
+			return;
+		}
+
+		// Remove it both ways
+		hasRiverV2[(int)direction] = false;
+		RefreshSelfOnly();
+		GetNeighbor(direction).RemoveRiver(direction.Opposite());
+		GetNeighbor(direction).RefreshSelfOnly();
+	}
+
+	public void AddRiver(HexDirection direction)
+	{
+		if (HasRiver(direction))
+		{
+			return;
+		}
+
+		// Add it both ways
+		hasRiverV2[(int)direction] = true;
+		RefreshSelfOnly();
+		if (GetNeighbor(direction) != null)
+		{
+			GetNeighbor(direction).AddRiver(direction.Opposite());
+			GetNeighbor(direction).RefreshSelfOnly();
+		}
 	}
 
 	public void SetOutgoingRiver (HexDirection direction) {
@@ -526,7 +608,7 @@ public class HexCell : MonoBehaviour {
 		}
 	}
 
-	public void Save (BinaryWriter writer) {
+    public void Save (BinaryWriter writer) {
 		writer.Write((byte)terrainTypeIndex);
 		writer.Write((byte)(elevation + 127));
 		writer.Write((byte)waterLevel);

@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using System.IO;
 using System.Collections.Generic;
+using UnityEditorInternal;
 
 public class HexGrid : MonoBehaviour {
 
@@ -152,6 +153,75 @@ public class HexGrid : MonoBehaviour {
 			HexMetrics.wrapSize = wrapping ? cellCountX : 0;
 			ResetVisibility();
 		}
+	}
+
+	public HexDirection GetCellEdge(Ray ray)
+	{
+		RaycastHit hit;
+		Vector3 mousePosition = Vector3.zero;
+		if (Physics.Raycast(ray, out hit))
+		{
+			mousePosition = hit.point;
+
+			HexCell hexCell = GetCell(ray);
+			Vector3 hexPosition = hexCell.transform.position;
+			Vector3 relativePosition = (mousePosition - hexPosition).normalized;
+			float angle = Vector3.Dot(Vector3.right, relativePosition);
+			float magnitude = (mousePosition - hexPosition).magnitude;
+			//Debug.Log("Angle: " + angle);
+			//Debug.Log("magnitude: " + magnitude);
+			// Top Right Quadrant
+			if (magnitude / HexMetrics.outerRadius > 0.5f) {
+				if (relativePosition.x > 0 && relativePosition.z > 0)
+				{
+					if (angle < 0.866f)
+					{
+						return HexDirection.NE;
+					}
+					else
+					{
+						return HexDirection.E;
+					}
+				}
+				// Bottom Right Quadrant
+				else if (relativePosition.x > 0 && relativePosition.z < 0)
+				{
+					if (angle < 0.866f)
+					{
+						return HexDirection.SE;
+					}
+					else
+					{
+						return HexDirection.E;
+					}
+				}
+				// Bottom Left Quadrant
+				else if (relativePosition.x < 0 && relativePosition.z < 0)
+				{
+					if (angle > -0.866f)
+					{
+						return HexDirection.SW;
+					}
+					else
+					{
+						return HexDirection.W;
+					}
+				}
+				// Top Left Quadrant
+				else // if (relativePosition.x < 0 && relativePosition.z > 0)
+				{
+					if (angle > -0.866f)
+					{
+						return HexDirection.NW;
+					}
+					else
+					{
+						return HexDirection.W;
+					}
+				}
+			}
+		}
+		return HexDirection.C;
 	}
 
 	public HexCell GetCell (Ray ray) {

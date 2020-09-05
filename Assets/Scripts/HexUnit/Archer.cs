@@ -34,7 +34,7 @@ public class Archer : HexUnit {
 			return -1;
 		}
 		int moveCost = 0;
-		if(toCell.HasRiver) {
+		if(toCell.HasRiver()) {
 			moveCost = 10;
 		}
 		if (edgeType == HexEdgeType.Flat) {

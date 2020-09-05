@@ -548,11 +548,11 @@ public class HexMapGenerator : MonoBehaviour {
 			riverOrigins[index] = riverOrigins[lastIndex];
 			riverOrigins.RemoveAt(lastIndex);
 
-			if (!origin.HasRiver) {
+			if (!origin.HasRiver()) {
 				bool isValidOrigin = true;
 				for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++) {
 					HexCell neighbor = origin.GetNeighbor(d);
-					if (neighbor && (neighbor.HasRiver || neighbor.IsUnderwater)) {
+					if (neighbor && (neighbor.HasRiver() || neighbor.IsUnderwater)) {
 						isValidOrigin = false;
 						break;
 					}
@@ -682,7 +682,7 @@ public class HexMapGenerator : MonoBehaviour {
 				if (cellBiome.terrain == 4) {
 					cellBiome.plant = 0;
 				}
-				else if (cellBiome.plant < 3 && cell.HasRiver) {
+				else if (cellBiome.plant < 3 && cell.HasRiver()) {
 					cellBiome.plant += 1;
 				}
 
