@@ -43,6 +43,11 @@ public class HexGrid : MonoBehaviour {
 
 	HexCellShaderData cellShaderData;
 
+	public HexGridChunk[] GetHexGridChunks()
+    {
+		return chunks;
+    }
+
 	void Awake () {
 		HexMetrics.noiseSource = noiseSource;
 		HexMetrics.InitializeHashGrid(seed);
@@ -125,6 +130,7 @@ public class HexGrid : MonoBehaviour {
 		for (int z = 0, i = 0; z < chunkCountZ; z++) {
 			for (int x = 0; x < chunkCountX; x++) {
 				HexGridChunk chunk = chunks[i++] = Instantiate(chunkPrefab);
+				chunk.name += i.ToString();
 				chunk.transform.SetParent(columns[x], false);
 			}
 		}

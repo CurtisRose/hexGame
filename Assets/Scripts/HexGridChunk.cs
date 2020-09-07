@@ -39,6 +39,31 @@ public class HexGridChunk : MonoBehaviour {
 		enabled = false;
 	}
 
+    private void Update()
+    {
+
+    }
+
+	public Vector3 GetCenterPosition()
+    {
+		Vector3 position = cells[12].transform.position;
+		position.y = 0.0f;
+		return position;
+    }
+
+	public void ToggleMeshVisibility(bool toggle)
+	{
+		//public HexMesh terrain, rivers, roads, water, waterShore, estuaries;
+		foreach(MeshRenderer meshRenderer in GetComponentsInChildren<MeshRenderer>())
+        {
+			// If the meshRenderer has a HexMesh in the same level, meaning, it is one of our HexMeshes
+			if (meshRenderer.GetComponent<HexMesh>())
+            {
+				meshRenderer.enabled = toggle;
+            }
+        }
+	}
+
 	public void Triangulate () {
 		terrain.Clear();
 		rivers.Clear();
