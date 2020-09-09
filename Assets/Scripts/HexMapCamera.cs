@@ -24,6 +24,9 @@ public class HexMapCamera : MonoBehaviour {
 
 	Camera hexCamera;
 
+	public bool occlusionCullingEnabled;
+	private bool wasOcclusionCullingEnabled;
+
 	// Used to determine how far outside of camera view to render something
 	float renderPositionScalarX = 1f;
 	float renderPositionScalarY = 1f;
@@ -42,6 +45,7 @@ public class HexMapCamera : MonoBehaviour {
 		swivel = transform.GetChild(0);
 		stick = swivel.GetChild(0);
 		hexCamera = GetComponentInChildren<Camera>();
+		wasOcclusionCullingEnabled = occlusionCullingEnabled;
 	}
 
 	void OnEnable () {
@@ -74,20 +78,31 @@ public class HexMapCamera : MonoBehaviour {
 
 	void PerformOcclusionCulling()
     {
-		foreach (HexGridChunk chunk in grid.GetHexGridChunks())
+		if (occlusionCullingEnabled)
 		{
-			Vector3 viewportPosition = hexCamera.WorldToViewportPoint(chunk.GetCenterPosition());
-			chunk.ToggleMeshVisibility(true);
-			if (viewportPosition.z < -0)
-            {
-				chunk.ToggleMeshVisibility(false);
-			}
-			else if (viewportPosition.x < -0.5 ||
-				viewportPosition.x > 1.5 ||
-				viewportPosition.y > 1.1 ||
-				viewportPosition.y < -2)
+			wasOcclusionCullingEnabled = true;
+			foreach (HexGridChunk chunk in grid.GetHexGridChunks())
 			{
-				chunk.ToggleMeshVisibility(false);
+				Vector3 viewportPosition = hexCamera.WorldToViewportPoint(chunk.GetCenterPosition());
+				chunk.ToggleMeshVisibility(true);
+				if (viewportPosition.z < -0)
+				{
+					chunk.ToggleMeshVisibility(false);
+				}
+				else if (viewportPosition.x < -0.5 ||
+					viewportPosition.x > 1.5 ||
+					viewportPosition.y > 1.1 ||
+					viewportPosition.y < -2)
+				{
+					chunk.ToggleMeshVisibility(false);
+				}
+			}
+		} else if (wasOcclusionCullingEnabled)
+        {
+			wasOcclusionCullingEnabled = false;
+			foreach (HexGridChunk chunk in grid.GetHexGridChunks())
+			{
+				chunk.ToggleMeshVisibility(true);
 			}
 		}
 	}
