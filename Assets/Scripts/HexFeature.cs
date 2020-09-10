@@ -3,63 +3,23 @@ using System.Collections.Generic;
 using UnityEngine.Events;
 using UnityEditor.Experimental.GraphView;
 
-public class HexFeature
+public static class HexFeature
 {
-	public HexQuadrant[] quadrants = new HexQuadrant[6];
-	public HexConnection[] connections = new HexConnection[3];
-	public HexCorners[] corners = new HexCorners[3];
-	public HexCell cell;
+	static int numQuadrants = 6;
+	static int numConnections = 3;
+	static int numCorners = 3;
 
-	public HexFeature(HexCell cell)
-	{
-		this.cell = cell;
+	public static void Triangulate(HexMesh mesh, HexCell cell)
+    {
 		for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
 		{
-			quadrants[(int)d] = (new HexQuadrant(this, d));
-        }
-	}
-
-	public void AddConnections()
-    {
-		for (HexDirection d = HexDirection.NE; d <= HexDirection.SE; d++)
-		{
-			if (cell.GetNeighbor(d) != null)
-			{
-				connections[(int)d] = new HexConnection(this, d);
-			}
-		}
-		AddCorners();
-	}
-
-	public void AddCorners()
-    {
-		for (HexDirection d = HexDirection.NE; d <= HexDirection.SE; d++)
-		{
-			if (cell.GetNeighbor(d) != null)
-			{
-				corners[(int)d] = new HexCorners(this, d, d.Previous());
-			}
-		}
-	}
-
-	public void Triangulate()
-    {
-		HexMesh terrain = cell.chunk.terrain;
-		for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
-		{
-			quadrants[(int)d].Triangulate();
+			HexQuadrant.Triangulate(d, cell.Index, cell.Position, mesh);
 			if (d <= HexDirection.SE)
 			{
-				if ((int)d < connections.Length)
-				{
-					if (connections[(int)d] != null)
-					{
-						connections[(int)d].Triangulate();
-					}
-				}
-				if (corners[(int)d] != null)
-				{
-					corners[(int)d].Triangulate();
+				if (cell.HasNeighbor(d))
+                {
+					HexConnection.Triangulate(d, cell);
+					HexCorners.Triangulate(d, cell);
 				}
 			}
 		}

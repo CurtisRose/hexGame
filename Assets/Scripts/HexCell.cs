@@ -11,8 +11,6 @@ public class HexCell : MonoBehaviour {
 
 	public HexGridChunk chunk;
 
-	public HexFeature hexFeature;
-
 	public int Index { get; set; }
 
 	public int ColumnIndex { get; set; }
@@ -29,7 +27,7 @@ public class HexCell : MonoBehaviour {
 
 	public void Triangulate()
     {
-		hexFeature.Triangulate();
+		HexFeature.Triangulate(chunk.terrain, this);
     }
 
     public int Elevation {
@@ -335,11 +333,6 @@ public class HexCell : MonoBehaviour {
 			explored.Add(false);
 		}
 	}
-
-	public HexFeature GetHexFeature()
-    {
-		return hexFeature;
-    }
 
 	public void IncreaseVisibility (Player player) {
 		visibility[(int)player] += 1;

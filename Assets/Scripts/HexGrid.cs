@@ -115,7 +115,6 @@ public class HexGrid : MonoBehaviour {
 		cellShaderData.Initialize(cellCountX, cellCountZ);
 		CreateChunks();
 		CreateCells();
-		AddFeaturesToCells();
 		return true;
 	}
 
@@ -142,27 +141,6 @@ public class HexGrid : MonoBehaviour {
 		for (int z = 0, i = 0; z < cellCountZ; z++) {
 			for (int x = 0; x < cellCountX; x++) {
 				CreateCell(x, z, i++);
-			}
-		}
-	}
-
-	void AddFeaturesToCells()
-    {
-		// Add the main feature to all cells
-		for (int z = 0, i = 0; z < cellCountZ; z++)
-		{
-			for (int x = 0; x < cellCountX; x++)
-			{
-				cells[i].hexFeature = new HexFeature(cells[i]);
-				i++;
-			}
-		}
-		// Add Conections between cells
-		for (int z = 0, i = 0; z < cellCountZ; z++)
-		{
-			for (int x = 0; x < cellCountX; x++)
-			{
-				cells[i++].hexFeature.AddConnections();
 			}
 		}
 	}

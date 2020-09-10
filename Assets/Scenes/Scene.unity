@@ -13486,6 +13486,7 @@ MonoBehaviour:
   moveSpeedMaxZoom: 100
   rotationSpeed: 180
   grid: {fileID: 1571186511}
+  occlusionCullingEnabled: 1
 --- !u!1 &2104049595
 GameObject:
   m_ObjectHideFlags: 0
