@@ -64,22 +64,32 @@ public class HexGridChunk : MonoBehaviour {
         }
 	}
 
-	public void Triangulate () {
+	void ClearHexMesh()
+    {
 		terrain.Clear();
 		rivers.Clear();
 		roads.Clear();
 		water.Clear();
 		waterShore.Clear();
 		estuaries.Clear();
-		for (int i = 0; i < cells.Length; i++) {
-			Triangulate(cells[i]);
-		}
+	}
+
+	void ApplyHexMesh()
+    {
 		terrain.Apply();
 		rivers.Apply();
 		roads.Apply();
 		water.Apply();
 		waterShore.Apply();
 		estuaries.Apply();
+	}
+
+	public void Triangulate () {
+		ClearHexMesh();
+		for (int i = 0; i < cells.Length; i++) {
+			Triangulate(cells[i]);
+		}
+		ApplyHexMesh();
 	}
 
 	void Triangulate (HexCell cell) {

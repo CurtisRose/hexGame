@@ -84,7 +84,6 @@ public class HexMapCamera : MonoBehaviour {
 			foreach (HexGridChunk chunk in grid.GetHexGridChunks())
 			{
 				Vector3 viewportPosition = hexCamera.WorldToViewportPoint(chunk.GetCenterPosition());
-				chunk.ToggleMeshVisibility(true);
 				if (viewportPosition.z < -0)
 				{
 					chunk.ToggleMeshVisibility(false);
@@ -95,6 +94,9 @@ public class HexMapCamera : MonoBehaviour {
 					viewportPosition.y < -2)
 				{
 					chunk.ToggleMeshVisibility(false);
+				} else
+                {
+					chunk.ToggleMeshVisibility(true);
 				}
 			}
 		} else if (wasOcclusionCullingEnabled)

@@ -1,9 +1,4 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
-using UnityEngine.Events;
-using UnityEditor.Experimental.GraphView;
-
-public static class HexFeature
+﻿public static class HexFeature
 {
 	static int numQuadrants = 6;
 	static int numConnections = 3;
