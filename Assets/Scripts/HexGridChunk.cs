@@ -44,12 +44,30 @@ public class HexGridChunk : MonoBehaviour {
 
     }
 
-	public Vector3 GetCenterPosition()
-    {
-		Vector3 position = cells[12].transform.position;
+	public Vector3 GetCorner1()
+	{
+		Vector3 position = cells[0].transform.position;
 		position.y = 0.0f;
 		return position;
-    }
+	}
+	public Vector3 GetCorner2()
+	{
+		Vector3 position = cells[4].transform.position;
+		position.y = 0.0f;
+		return position;
+	}
+	public Vector3 GetCorner3()
+	{
+		Vector3 position = cells[20].transform.position;
+		position.y = 0.0f;
+		return position;
+	}
+	public Vector3 GetCorner4()
+	{
+		Vector3 position = cells[24].transform.position;
+		position.y = 0.0f;
+		return position;
+	}
 
 	public void ToggleMeshVisibility(bool toggle)
 	{

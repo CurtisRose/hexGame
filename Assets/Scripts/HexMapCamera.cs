@@ -83,21 +83,23 @@ public class HexMapCamera : MonoBehaviour {
 			wasOcclusionCullingEnabled = true;
 			foreach (HexGridChunk chunk in grid.GetHexGridChunks())
 			{
-				Vector3 viewportPosition = hexCamera.WorldToViewportPoint(chunk.GetCenterPosition());
-				if (viewportPosition.z < -0)
+				Vector3 viewportPosition1 = hexCamera.WorldToViewportPoint(chunk.GetCorner1());
+				Vector3 viewportPosition2 = hexCamera.WorldToViewportPoint(chunk.GetCorner2());
+				Vector3 viewportPosition3 = hexCamera.WorldToViewportPoint(chunk.GetCorner3());
+				Vector3 viewportPosition4 = hexCamera.WorldToViewportPoint(chunk.GetCorner4());
+				bool render = false;
+				if (viewportPosition1.z < -0)
 				{
-					chunk.ToggleMeshVisibility(false);
+					render = false;
 				}
-				else if (viewportPosition.x < -0.5 ||
-					viewportPosition.x > 1.5 ||
-					viewportPosition.y > 1.1 ||
-					viewportPosition.y < -2)
+				else if (viewportPosition1.x < -0.5||viewportPosition1.x > 1.5||viewportPosition1.y > 1.1||viewportPosition1.y < -2)
 				{
-					chunk.ToggleMeshVisibility(false);
+					render = false;
 				} else
                 {
-					chunk.ToggleMeshVisibility(true);
+					render = true;
 				}
+				chunk.ToggleMeshVisibility(render);
 			}
 		} else if (wasOcclusionCullingEnabled)
         {
